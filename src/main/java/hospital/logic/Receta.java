@@ -1,26 +1,17 @@
 package hospital.logic;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name="receta")
-@XmlAccessorType(XmlAccessType.FIELD)
+
 public class Receta {
     private String id;
     private String pacienteId;
     private String farmaceutaId;
     private String estadoReceta;
 
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate fecha;
-
-    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate fechaRetiro;
 
     private List<DetalleReceta> detalles = new ArrayList<>();

@@ -33,7 +33,6 @@
       <artifactId>kernel</artifactId>
       <version>7.2.3</version>
     </dependency>
-
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>layout</artifactId>
@@ -48,6 +47,12 @@
       <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
       <version>1.5.3</version>
+    </dependency>
+    <!-- Dependencia para MySQL Connector -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.33</version>
     </dependency>
   </dependencies>
 

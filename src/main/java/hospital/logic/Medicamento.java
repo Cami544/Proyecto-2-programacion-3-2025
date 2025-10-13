@@ -1,12 +1,7 @@
 package hospital.logic;
 
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="medicamento")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Medicamento {
     private String codigo;
     private String nombre;
