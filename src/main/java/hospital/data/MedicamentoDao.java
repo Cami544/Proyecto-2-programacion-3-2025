@@ -20,7 +20,6 @@ public class MedicamentoDao {
     public void create(Medicamento m) throws Exception {
         String sql = "INSERT INTO Medicamento (codigo, nombre, presentacion) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = db.prepareStatement(sql)) {
-
             // Validación antes de insertar
             if (m.getCodigo() == null || m.getNombre() == null || m.getPresentacion() == null) {
                 throw new Exception("Datos del medicamento incompletos.");
@@ -30,7 +29,6 @@ public class MedicamentoDao {
             stmt.setString(2, m.getNombre());
             stmt.setString(3, m.getPresentacion());
             db.executeUpdate(stmt);
-
         } catch (SQLException ex) {
             throw new Exception("Error al crear medicamento: " + ex.getMessage(), ex);
         }
@@ -47,6 +45,8 @@ public class MedicamentoDao {
                     throw new Exception("Medicamento no encontrado con código: " + codigo);
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al leer medicamento: " + ex.getMessage(), ex);
         }
     }
 
@@ -61,6 +61,8 @@ public class MedicamentoDao {
             if (count == 0) {
                 throw new Exception("Medicamento no existe para actualizar.");
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al actualizar medicamento: " + ex.getMessage(), ex);
         }
     }
 
@@ -73,11 +75,9 @@ public class MedicamentoDao {
                 throw new Exception("No se encontró un medicamento con el código: " + codigo);
             }
         } catch (SQLException ex) {
-            throw new Exception("Error al eliminar medicamento: " + ex.getMessage());
+            throw new Exception("Error al eliminar medicamento: " + ex.getMessage(), ex);
         }
     }
-
-
 
     public List<Medicamento> search(String filtro) throws Exception {
         List<Medicamento> resultado = new ArrayList<>();
@@ -90,6 +90,8 @@ public class MedicamentoDao {
                     resultado.add(from(rs));
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al buscar medicamentos: " + ex.getMessage(), ex);
         }
         return resultado;
     }
@@ -102,15 +104,21 @@ public class MedicamentoDao {
             while (rs.next()) {
                 lista.add(from(rs));
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al obtener todos los medicamentos: " + ex.getMessage(), ex);
         }
         return lista;
     }
 
     private Medicamento from(ResultSet rs) throws Exception {
-        Medicamento m = new Medicamento();
-        m.setCodigo(rs.getString("codigo"));
-        m.setNombre(rs.getString("nombre"));
-        m.setPresentacion(rs.getString("presentacion"));
-        return m;
+        try {
+            Medicamento m = new Medicamento();
+            m.setCodigo(rs.getString("codigo"));
+            m.setNombre(rs.getString("nombre"));
+            m.setPresentacion(rs.getString("presentacion"));
+            return m;
+        } catch (SQLException ex) {
+            throw new Exception("Error al mapear medicamento desde ResultSet: " + ex.getMessage(), ex);
+        }
     }
 }

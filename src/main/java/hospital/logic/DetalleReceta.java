@@ -1,15 +1,42 @@
 package hospital.logic;
 
 public class DetalleReceta {
+    private int id;
+    private String recetaId;
     private String medicamentoCodigo;
     private int cantidad;
     private String indicaciones;
 
-    public DetalleReceta() {}
+    public DetalleReceta() {
+    }
+
     public DetalleReceta(String medicamentoCodigo, int cantidad, String indicaciones) {
         this.medicamentoCodigo = medicamentoCodigo;
         this.cantidad = cantidad;
         this.indicaciones = indicaciones;
+    }
+
+    public DetalleReceta(String recetaId, String medicamentoCodigo, int cantidad, String indicaciones) {
+        this.recetaId = recetaId;
+        this.medicamentoCodigo = medicamentoCodigo;
+        this.cantidad = cantidad;
+        this.indicaciones = indicaciones;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getRecetaId() {
+        return recetaId;
+    }
+
+    public void setRecetaId(String recetaId) {
+        this.recetaId = recetaId;
     }
 
     public String getMedicamentoCodigo() {
@@ -34,5 +61,16 @@ public class DetalleReceta {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+
+    @Override
+    public String toString() {
+        return "DetalleReceta{" +
+                "id=" + id +
+                ", recetaId='" + recetaId + '\'' +
+                ", medicamentoCodigo='" + medicamentoCodigo + '\'' +
+                ", cantidad=" + cantidad +
+                ", indicaciones='" + indicaciones + '\'' +
+                '}';
     }
 }

@@ -386,10 +386,13 @@ public class View implements PropertyChangeListener {
         medicamentoBox.removeAllItems();
         medicamentoBox.addItem(null);
 
-        for (Medicamento m : Service.instance().getMedicamentos()) {
-            medicamentoBox.addItem(m);
+        try {
+            for (Medicamento m : Service.instance().getMedicamentos()) {
+                medicamentoBox.addItem(m);
+            }
+        } catch (Exception e) {
+            System.err.println("Error actualizando combo de medicamentos: " + e.getMessage());
         }
-
     }
 
     private void actualizarGraficoLineas() {

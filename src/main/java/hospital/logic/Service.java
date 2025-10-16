@@ -5,7 +5,6 @@ import hospital.data.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import java.util.Comparator;
 
 public class Service {
@@ -17,13 +16,13 @@ public class Service {
     }
 
     // --- DAO ---
-    private PacienteDao pacienteDao;
-    private MedicoDao medicoDao;
-    private FarmaceutaDao farmaceutaDao;
-    private AdministradorDao administradorDao;
-    private MedicamentoDao medicamentoDao;
-    private RecetaDao recetaDao;
-    private DetalleRecetaDao detalleRecetaDao;
+    private final PacienteDao pacienteDao;
+    private final MedicoDao medicoDao;
+    private final FarmaceutaDao farmaceutaDao;
+    private final AdministradorDao administradorDao;
+    private final MedicamentoDao medicamentoDao;
+    private final RecetaDao recetaDao;
+    private final DetalleRecetaDao detalleRecetaDao;
 
     private Service() {
         pacienteDao = new PacienteDao();
@@ -37,23 +36,31 @@ public class Service {
     }
 
     public void stop() {
-     //   Database.instance().close();
+        // Database.instance().close();
         System.out.println("Conexión con la base de datos cerrada correctamente.");
     }
-
 
     // ========================= PACIENTES ======================
 
     public void createPaciente(Paciente p) throws Exception {
-        if (pacienteDao.read(p.getId()) != null)
-            throw new Exception("Paciente ya existe");
+        try {
+            Paciente existente = pacienteDao.read(p.getId());
+            if (existente != null) {
+                throw new Exception("Paciente ya existe");
+            }
+        } catch (Exception e) {
+            if (e.getMessage().contains("no encontrado")) {
+                // Si no existe, podemos crearlo
+                pacienteDao.create(p);
+                return;
+            }
+            throw e;
+        }
         pacienteDao.create(p);
     }
 
     public Paciente readPaciente(String id) throws Exception {
-        Paciente p = pacienteDao.read(id);
-        if (p == null) throw new Exception("Paciente no existe");
-        return p;
+        return pacienteDao.read(id);
     }
 
     public void updatePaciente(Paciente p) throws Exception {
@@ -75,15 +82,23 @@ public class Service {
     // ========================= MEDICOS ========================
 
     public void createMedico(Medico m) throws Exception {
-        if (medicoDao.read(m.getId()) != null)
-            throw new Exception("Medico ya existe");
+        try {
+            Medico existente = medicoDao.read(m.getId());
+            if (existente != null) {
+                throw new Exception("Medico ya existe");
+            }
+        } catch (Exception e) {
+            if (e.getMessage().contains("no encontrado")) {
+                medicoDao.create(m);
+                return;
+            }
+            throw e;
+        }
         medicoDao.create(m);
     }
 
     public Medico readMedico(String id) throws Exception {
-        Medico m = medicoDao.read(id);
-        if (m == null) throw new Exception("Medico no existe");
-        return m;
+        return medicoDao.read(id);
     }
 
     public void updateMedico(Medico m) throws Exception {
@@ -120,26 +135,34 @@ public class Service {
         farmaceutaDao.delete(id);
     }
 
-    public List<Farmaceuta> searchFarmaceutas(String nombre) {
-        return farmaceutaDao.searchFarmaceutas( nombre);
+    public List<Farmaceuta> searchFarmaceutas(String nombre) throws Exception {
+        return farmaceutaDao.searchFarmaceutas(nombre);
     }
 
-    public List<Farmaceuta> getFarmaceutas() {
+    public List<Farmaceuta> getFarmaceutas() throws Exception {
         return farmaceutaDao.findAll();
     }
 
     // ====================== MEDICAMENTOS ======================
 
     public void createMedicamento(Medicamento m) throws Exception {
-        if (medicamentoDao.read(m.getCodigo()) != null)
-            throw new Exception("Medicamento ya existe");
+        try {
+            Medicamento existente = medicamentoDao.read(m.getCodigo());
+            if (existente != null) {
+                throw new Exception("Medicamento ya existe");
+            }
+        } catch (Exception e) {
+            if (e.getMessage().contains("no encontrado")) {
+                medicamentoDao.create(m);
+                return;
+            }
+            throw e;
+        }
         medicamentoDao.create(m);
     }
 
     public Medicamento readMedicamento(String codigo) throws Exception {
-        Medicamento m = medicamentoDao.read(codigo);
-        if (m == null) throw new Exception("Medicamento no existe");
-        return m;
+        return medicamentoDao.read(codigo);
     }
 
     public void updateMedicamento(Medicamento m) throws Exception {
@@ -154,7 +177,6 @@ public class Service {
         return medicamentoDao.search(nombre);
     }
 
-
     public List<Medicamento> getMedicamentos() throws Exception {
         return medicamentoDao.getAll();
     }
@@ -162,15 +184,28 @@ public class Service {
     // ========================= RECETAS ========================
 
     public void createReceta(Receta receta) throws Exception {
-        if (recetaDao.read(receta.getId()) != null)
-            throw new Exception("Receta ya existe");
+        try {
+            Receta existente = recetaDao.read(receta.getId());
+            if (existente != null) {
+                throw new Exception("Receta ya existe");
+            }
+        } catch (Exception e) {
+            if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no existe")) {
+                recetaDao.create(receta);
+                return;
+            }
+            throw e;
+        }
         recetaDao.create(receta);
     }
 
+    public void createReceta(Receta receta, LocalDate fechaRetiro) throws Exception {
+        receta.setFechaRetiro(fechaRetiro);
+        createReceta(receta);
+    }
+
     public Receta readReceta(String id) throws Exception {
-        Receta r = recetaDao.read(id);
-        if (r == null) throw new Exception("Receta no existe");
-        return r;
+        return recetaDao.read(id);
     }
 
     public void updateReceta(Receta r) throws Exception {
@@ -182,24 +217,12 @@ public class Service {
     }
 
     public List<Receta> searchRecetasByPaciente(String pacienteId) throws Exception {
-        return recetaDao.filterByPaciente( pacienteId);
+        return recetaDao.filterByPaciente(pacienteId);
     }
 
     public List<Receta> getRecetas() throws Exception {
         return recetaDao.getAll();
     }
-/*
-    public void clearAllData() {
-        data.getPacientes().clear();
-        data.getMedicos().clear();
-        data.getFarmaceutas().clear();
-        data.getMedicamentos().clear();
-        data.getRecetas().clear();
-
-        stop();
-
-        System.out.println("Todos los datos han sido eliminados");
-    }*/
 
     // ====================== ADMINISTRADORES ======================
 
@@ -222,11 +245,12 @@ public class Service {
     public List<Administrador> getAllAdministradores() throws Exception {
         return administradorDao.findAll();
     }
-    public List<Administrador> getAdministradores() {
+
+    public List<Administrador> getAdministradores() throws Exception {
         return administradorDao.findAll();
     }
 
-// ====================== MÉTODOS DE AUTENTICACIÓN ======================
+    // ====================== MÉTODOS DE AUTENTICACIÓN ======================
 
     public Usuario authenticate(String id, String clave) throws Exception {
         if (id == null || id.trim().isEmpty()) {
@@ -238,62 +262,109 @@ public class Service {
 
         try {
             Medico medico = readMedico(id);
-            if (medico.getClave() != null && medico.getClave().equals(clave)) {
+            if (medico.getClave().equals(clave)) {
                 return medico;
             }
         } catch (Exception e) {
+            // Continuar buscando en otras tablas
         }
 
         try {
             Farmaceuta farmaceuta = readFarmaceuta(id);
-            if (farmaceuta.getClave() != null && farmaceuta.getClave().equals(clave)) {
+            if (farmaceuta.getClave().equals(clave)) {
                 return farmaceuta;
             }
         } catch (Exception e) {
+            // Continuar buscando en otras tablas
         }
 
         try {
             Administrador admin = readAdministrador(id);
-            if (admin.getClave() != null && admin.getClave().equals(clave)) {
+            if (admin.getClave().equals(clave)) {
                 return admin;
             }
         } catch (Exception e) {
+            // Si llegamos aquí, el usuario no existe
         }
 
-        throw new Exception("Usuario o clave incorrectos");
+        throw new Exception("Credenciales inválidas");
     }
-
-
-
-
 
     public void cambiarClave(String id, String claveActual, String claveNueva) throws Exception {
         if (id == null || id.trim().isEmpty()) {
             throw new Exception("ID requerido");
         }
         if (claveActual == null || claveActual.trim().isEmpty()) {
-            throw new Exception("Contraseña actual requerida");
+            throw new Exception("Clave actual requerida");
         }
         if (claveNueva == null || claveNueva.trim().isEmpty()) {
-            throw new Exception("Nueva contraseña requerida");
+            throw new Exception("Clave nueva requerida");
         }
 
-        Usuario usuario = authenticate(id, claveActual);
-
-        if (usuario instanceof Medico) {
-            Medico medico = (Medico) usuario;
+        try {
+            Medico medico = readMedico(id);
+            if (!medico.getClave().equals(claveActual)) {
+                throw new Exception("Clave actual incorrecta");
+            }
             medico.setClave(claveNueva);
             updateMedico(medico);
-        } else if (usuario instanceof Farmaceuta) {
-            Farmaceuta farmaceuta = (Farmaceuta) usuario;
+            return;
+        } catch (Exception e) {
+            if (!e.getMessage().equals("Clave actual incorrecta")) {
+                // Continuar buscando en otras tablas
+            } else {
+                throw e;
+            }
+        }
+
+        try {
+            Farmaceuta farmaceuta = readFarmaceuta(id);
+            if (!farmaceuta.getClave().equals(claveActual)) {
+                throw new Exception("Clave actual incorrecta");
+            }
             farmaceuta.setClave(claveNueva);
             updateFarmaceuta(farmaceuta);
-        } else if (usuario instanceof Administrador) {
-            Administrador admin = (Administrador) usuario;
+            return;
+        } catch (Exception e) {
+            if (!e.getMessage().equals("Clave actual incorrecta")) {
+                // Continuar buscando en otras tablas
+            } else {
+                throw e;
+            }
+        }
+
+        try {
+            Administrador admin = readAdministrador(id);
+            if (!admin.getClave().equals(claveActual)) {
+                throw new Exception("Clave actual incorrecta");
+            }
             admin.setClave(claveNueva);
             updateAdministrador(admin);
-        } else {
-            throw new Exception("Tipo de usuario no valido para cambio de contraseña");
+            return;
+        } catch (Exception e) {
+            if (!e.getMessage().equals("Clave actual incorrecta")) {
+                throw new Exception("Usuario no encontrado");
+            } else {
+                throw e;
+            }
         }
+    }
+
+    // ====================== DETALLES DE RECETA ======================
+
+    public void createDetalleReceta(DetalleReceta detalle) throws Exception {
+        detalleRecetaDao.create(detalle);
+    }
+
+    public List<DetalleReceta> getDetallesPorReceta(String recetaId) throws Exception {
+        return detalleRecetaDao.findByReceta(recetaId);
+    }
+
+    public void updateDetalleReceta(DetalleReceta detalle) throws Exception {
+        detalleRecetaDao.update(detalle);
+    }
+
+    public void deleteDetalleReceta(int id) throws Exception {
+        detalleRecetaDao.delete(id);
     }
 }

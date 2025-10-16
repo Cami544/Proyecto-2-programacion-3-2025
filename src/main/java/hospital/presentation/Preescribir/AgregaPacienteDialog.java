@@ -20,7 +20,7 @@ public class AgregaPacienteDialog extends JDialog {
     private Paciente pacienteSeleccionado;
     private DefaultTableModel tableModel;
 
-    public AgregaPacienteDialog() {
+    public AgregaPacienteDialog() throws Exception {
         setContentPane(contentPane);
         setModal(true);
         setSize(700, 500);
@@ -64,7 +64,11 @@ public class AgregaPacienteDialog extends JDialog {
         buscarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                filtrarPacientes();
+                try {
+                    filtrarPacientes();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -107,7 +111,7 @@ public class AgregaPacienteDialog extends JDialog {
         }
     }
 
-    private void filtrarPacientes() {
+    private void filtrarPacientes() throws Exception {
         String texto = nombreText.getText().trim().toLowerCase();
         List<Paciente> filtrados;
 

@@ -50,6 +50,8 @@ public class MedicoDao {
                     throw new Exception("Médico no encontrado con ID: " + id);
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al leer médico: " + ex.getMessage(), ex);
         }
     }
 
@@ -67,29 +69,26 @@ public class MedicoDao {
             if (count == 0) {
                 throw new Exception("Médico no existe para actualizar.");
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al actualizar médico: " + ex.getMessage(), ex);
         }
     }
 
+    // Eliminar médico
     public void delete(String id) throws Exception {
-        // Eliminar recetas asociadas (si aplica)
-        RecetaDao recetaDao = new RecetaDao();
-        List<Receta> recetas = recetaDao.getAll(); // o filterByMedico(id)
-        for (Receta r : recetas) {
-            if (r.getFarmaceutaId().equals(id)) {
-                recetaDao.delete(r.getId());
-            }
-        }
-
-        // Luego eliminar el médico
-        String sql = "DELETE FROM Medico WHERE id=?";
+        String sql = "DELETE FROM Medico WHERE id = ?";
         try (PreparedStatement stmt = db.prepareStatement(sql)) {
             stmt.setString(1, id);
-            db.executeUpdate(stmt);
+            int count = db.executeUpdate(stmt);
+            if (count == 0) {
+                throw new Exception("No se encontró un médico con ID: " + id);
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error al eliminar médico: " + ex.getMessage(), ex);
         }
     }
 
-
-    // Buscar médicos por nombre o especialidad
+    // Buscar médicos por filtro
     public List<Medico> search(String filtro) throws Exception {
         List<Medico> resultado = new ArrayList<>();
         String sql = "SELECT * FROM Medico WHERE nombre LIKE ? OR especialidad LIKE ? ORDER BY nombre";
@@ -101,11 +100,13 @@ public class MedicoDao {
                     resultado.add(from(rs));
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al buscar médicos: " + ex.getMessage(), ex);
         }
         return resultado;
     }
 
-    // Listar todos los médicos
+    // Obtener todos los médicos
     public List<Medico> getAll() throws Exception {
         List<Medico> lista = new ArrayList<>();
         String sql = "SELECT * FROM Medico ORDER BY nombre";
@@ -114,18 +115,40 @@ public class MedicoDao {
             while (rs.next()) {
                 lista.add(from(rs));
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al obtener todos los médicos: " + ex.getMessage(), ex);
         }
         return lista;
     }
 
-    // Convertir ResultSet en objeto Medico
+    // Obtener recetas de un médico
+    public List<Receta> getRecetas(String medicoId) throws Exception {
+        List<Receta> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Receta WHERE medicoId = ? ORDER BY fecha DESC";
+        try (PreparedStatement stmt = db.prepareStatement(sql)) {
+            stmt.setString(1, medicoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Aquí falta un metodo fromReceta o delegar a RecetaDao
+                }
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error al obtener recetas del médico: " + ex.getMessage(), ex);
+        }
+        return lista;
+    }
+
     private Medico from(ResultSet rs) throws Exception {
-        Medico m = new Medico();
-        m.setId(rs.getString("id"));
-        m.setNombre(rs.getString("nombre"));
-        m.setClave(rs.getString("clave"));
-        m.setEspecialidad(rs.getString("especialidad"));
-        m.setRol(rs.getString("rol"));
-        return m;
+        try {
+            Medico m = new Medico();
+            m.setId(rs.getString("id"));
+            m.setNombre(rs.getString("nombre"));
+            m.setClave(rs.getString("clave"));
+            m.setEspecialidad(rs.getString("especialidad"));
+            m.setRol(rs.getString("rol"));
+            return m;
+        } catch (SQLException ex) {
+            throw new Exception("Error al mapear médico desde ResultSet: " + ex.getMessage(), ex);
+        }
     }
 }

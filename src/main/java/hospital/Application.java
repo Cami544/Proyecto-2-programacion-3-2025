@@ -13,7 +13,10 @@ public class Application {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (Exception ex) {}
+            initializeControllers(); // ← Moverlo aquí dentro del try
+        } catch (Exception ex) {
+            ex.printStackTrace(); // Para ver el error si ocurre
+        }
 
         window = new JFrame();
         window.addWindowListener(new WindowAdapter() {
@@ -24,7 +27,7 @@ public class Application {
             }
         });
 
-        initializeControllers();
+
 
         window.setSize(1350, 600);
         window.setResizable(true);
@@ -154,7 +157,7 @@ public class Application {
         }
     }
 
-    private static void initializeControllers() {
+    private static void initializeControllers() throws Exception {
         hospital.presentation.Paciente.Model pacienteModel = new hospital.presentation.Paciente.Model();
         pacienteView = new hospital.presentation.Paciente.View();
         pacientesControllers = new hospital.presentation.Paciente.Controller(pacienteView, pacienteModel);

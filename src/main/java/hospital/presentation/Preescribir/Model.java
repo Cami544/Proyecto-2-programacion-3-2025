@@ -22,11 +22,16 @@ public class Model extends AbstractModel {
     public static final String FECHA_RETIRO = "fechaRetiro";
 
     public Model() {
-        this.pacienteSeleccionado = null;
-        this.recetaActual = null;
-        this.detallesReceta = new ArrayList<>();
-        this.medicamentosDisponibles = Service.instance().getMedicamentos();
-        this.fechaRetiro = LocalDate.now().plusDays(1); // Por defecto: mañana
+        try {
+            this.pacienteSeleccionado = null;
+            this.recetaActual = null;
+            this.detallesReceta = new ArrayList<>();
+            this.medicamentosDisponibles = Service.instance().getMedicamentos();
+            this.fechaRetiro = LocalDate.now().plusDays(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.medicamentosDisponibles = new ArrayList<>();
+        }
     }
 
     @Override

@@ -50,6 +50,8 @@ public class PacienteDao {
                     throw new Exception("Paciente no encontrado con ID: " + id);
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al leer paciente: " + ex.getMessage(), ex);
         }
     }
 
@@ -66,43 +68,44 @@ public class PacienteDao {
             if (count == 0) {
                 throw new Exception("Paciente no existe para actualizar.");
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al actualizar paciente: " + ex.getMessage(), ex);
         }
     }
 
+    // Eliminar un paciente
     public void delete(String id) throws Exception {
-        // Eliminar primero las recetas y sus detalles del paciente
-        RecetaDao recetaDao = new RecetaDao();
-        List<Receta> recetas = recetaDao.filterByPaciente(id);
-        for (Receta r : recetas) {
-            recetaDao.delete(r.getId());
-        }
-
-        // Luego eliminar el paciente
-        String sql = "DELETE FROM Paciente WHERE id=?";
-        try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, id);
-            db.executeUpdate(stm);
+        String sql = "DELETE FROM Paciente WHERE id = ?";
+        try (PreparedStatement stmt = db.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            int count = db.executeUpdate(stmt);
+            if (count == 0) {
+                throw new Exception("No se encontró un paciente con ID: " + id);
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error al eliminar paciente: " + ex.getMessage(), ex);
         }
     }
 
-
-
-    // Buscar pacientes por nombre
+    // Buscar pacientes por filtro
     public List<Paciente> search(String filtro) throws Exception {
         List<Paciente> resultado = new ArrayList<>();
-        String sql = "SELECT * FROM Paciente WHERE nombre LIKE ? ORDER BY nombre";
+        String sql = "SELECT * FROM Paciente WHERE nombre LIKE ? OR numeroTelefono LIKE ? ORDER BY nombre";
         try (PreparedStatement stmt = db.prepareStatement(sql)) {
             stmt.setString(1, "%" + filtro + "%");
+            stmt.setString(2, "%" + filtro + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     resultado.add(from(rs));
                 }
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al buscar pacientes: " + ex.getMessage(), ex);
         }
         return resultado;
     }
 
-    // Listar todos los pacientes
+    // Obtener todos los pacientes
     public List<Paciente> getAll() throws Exception {
         List<Paciente> lista = new ArrayList<>();
         String sql = "SELECT * FROM Paciente ORDER BY nombre";
@@ -111,22 +114,42 @@ public class PacienteDao {
             while (rs.next()) {
                 lista.add(from(rs));
             }
+        } catch (SQLException ex) {
+            throw new Exception("Error al obtener todos los pacientes: " + ex.getMessage(), ex);
         }
         return lista;
     }
 
-    // Convertir ResultSet en objeto Paciente
-    private Paciente from(ResultSet rs) throws Exception {
-        Paciente p = new Paciente();
-        p.setId(rs.getString("id"));
-        p.setNombre(rs.getString("nombre"));
-        Date fecha = rs.getDate("fechaNacimiento");
-        if (fecha != null) {
-            p.setFechaNacimiento(fecha.toLocalDate());
+    // Obtener recetas de un paciente
+    public List<Receta> getRecetas(String pacienteId) throws Exception {
+        List<Receta> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Receta WHERE pacienteId = ? ORDER BY fecha DESC";
+        try (PreparedStatement stmt = db.prepareStatement(sql)) {
+            stmt.setString(1, pacienteId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Aquí deberías delegar a RecetaDao o implementar fromReceta
+                }
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error al obtener recetas del paciente: " + ex.getMessage(), ex);
         }
-        p.setNumeroTelefono(rs.getString("numeroTelefono"));
-        return p;
+        return lista;
+    }
+
+    private Paciente from(ResultSet rs) throws Exception {
+        try {
+            Paciente p = new Paciente();
+            p.setId(rs.getString("id"));
+            p.setNombre(rs.getString("nombre"));
+            Date fecha = rs.getDate("fechaNacimiento");
+            if (fecha != null) {
+                p.setFechaNacimiento(fecha.toLocalDate());
+            }
+            p.setNumeroTelefono(rs.getString("numeroTelefono"));
+            return p;
+        } catch (SQLException ex) {
+            throw new Exception("Error al mapear paciente desde ResultSet: " + ex.getMessage(), ex);
+        }
     }
 }
-
-

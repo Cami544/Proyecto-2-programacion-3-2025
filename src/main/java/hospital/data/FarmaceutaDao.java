@@ -5,97 +5,110 @@ import java.sql.*;
 import java.util.*;
 
 public class FarmaceutaDao {
-    Database db;
+    private Database db;
 
     public FarmaceutaDao() {
         db = Database.instance();
+        if (db == null) {
+            System.err.println("No se pudo establecer la conexión con la base de datos (FarmaceutaDao).");
+        } else {
+            System.out.println("Conexión establecida correctamente con la base de datos (FarmaceutaDao).");
+        }
     }
 
     public void create(Farmaceuta f) throws Exception {
         String sql = "INSERT INTO Farmaceuta (id, nombre, clave, rol) VALUES (?, ?, ?, ?)";
-        PreparedStatement stm = db.prepareStatement(sql);
-        stm.setString(1, f.getId());
-        stm.setString(2, f.getNombre());
-        stm.setString(3, f.getClave());
-        stm.setString(4, f.getRol());
-        db.executeUpdate(stm);
+        try (PreparedStatement stm = db.prepareStatement(sql)) {
+            if (f.getId() == null || f.getNombre() == null || f.getClave() == null) {
+                throw new Exception("Datos del farmaceuta incompletos.");
+            }
+
+            stm.setString(1, f.getId());
+            stm.setString(2, f.getNombre());
+            stm.setString(3, f.getClave());
+            stm.setString(4, f.getRol());
+            db.executeUpdate(stm);
+        } catch (SQLException ex) {
+            throw new Exception("Error al crear farmaceuta: " + ex.getMessage(), ex);
+        }
     }
 
     public Farmaceuta read(String id) throws Exception {
         String sql = "SELECT * FROM Farmaceuta f WHERE f.id=?";
-        PreparedStatement stm = db.prepareStatement(sql);
-        stm.setString(1, id);
-        ResultSet rs = db.executeQuery(stm);
-        if (rs.next()) return from(rs, "f");
-        else throw new Exception("Farmaceuta no existe");
+        try (PreparedStatement stm = db.prepareStatement(sql)) {
+            stm.setString(1, id);
+            ResultSet rs = db.executeQuery(stm);
+            if (rs.next()) {
+                return from(rs, "f");
+            } else {
+                throw new Exception("Farmaceuta no existe");
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error al leer farmaceuta: " + ex.getMessage(), ex);
+        }
     }
 
     public void update(Farmaceuta f) throws Exception {
         String sql = "UPDATE Farmaceuta SET nombre=?, clave=?, rol=? WHERE id=?";
-        PreparedStatement stm = db.prepareStatement(sql);
-        stm.setString(1, f.getNombre());
-        stm.setString(2, f.getClave());
-        stm.setString(3, f.getRol());
-        stm.setString(4, f.getId());
-        db.executeUpdate(stm);
-    }
-
-    public void delete(String cedula) throws Exception {
-        String sql = "DELETE FROM Farmaceuta WHERE cedula = ?";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, cedula);
+            stm.setString(1, f.getNombre());
+            stm.setString(2, f.getClave());
+            stm.setString(3, f.getRol());
+            stm.setString(4, f.getId());
+
             int count = db.executeUpdate(stm);
-            if (count == 0) throw new Exception("No se encontró un farmaceuta con cédula: " + cedula);
+            if (count == 0) {
+                throw new Exception("Farmaceuta no existe para actualizar.");
+            }
         } catch (SQLException ex) {
-            throw new Exception("Error al eliminar farmaceuta: " + ex.getMessage());
+            throw new Exception("Error al actualizar farmaceuta: " + ex.getMessage(), ex);
         }
     }
 
-
-    public List<Farmaceuta> findAll() {
-        List<Farmaceuta> lista = new ArrayList<>();
-        try {
-            String sql = "SELECT * FROM Farmaceuta f";
-            PreparedStatement stm = db.prepareStatement(sql);
-            ResultSet rs = db.executeQuery(stm);
-            while (rs.next()) lista.add(from(rs, "f"));
+    // CORREGIDO: Cambiar cedula por id para ser consistente con la tabla
+    public void delete(String id) throws Exception {
+        String sql = "DELETE FROM Farmaceuta WHERE id = ?";
+        try (PreparedStatement stm = db.prepareStatement(sql)) {
+            stm.setString(1, id);
+            int count = db.executeUpdate(stm);
+            if (count == 0) {
+                throw new Exception("No se encontró un farmaceuta con ID: " + id);
+            }
         } catch (SQLException ex) {
-            System.out.println("Error listando farmaceutas: " + ex.getMessage());
+            throw new Exception("Error al eliminar farmaceuta: " + ex.getMessage(), ex);
+        }
+    }
+
+    public List<Farmaceuta> findAll() throws Exception {
+        List<Farmaceuta> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Farmaceuta f ORDER BY f.nombre";
+        try (PreparedStatement stm = db.prepareStatement(sql)) {
+            ResultSet rs = db.executeQuery(stm);
+            while (rs.next()) {
+                lista.add(from(rs, "f"));
+            }
+        } catch (SQLException ex) {
+            throw new Exception("Error listando farmaceutas: " + ex.getMessage(), ex);
         }
         return lista;
     }
 
-
-    public List<Farmaceuta> searchFarmaceutas(String nombre) {
+    public List<Farmaceuta> searchFarmaceutas(String nombre) throws Exception {
         List<Farmaceuta> lista = new ArrayList<>();
-        try {
-            String sql = "SELECT * FROM Farmaceuta WHERE nombre LIKE ?";
-            PreparedStatement stm = db.prepareStatement(sql);
+        String sql = "SELECT * FROM Farmaceuta f WHERE f.nombre LIKE ? ORDER BY f.nombre";
+        try (PreparedStatement stm = db.prepareStatement(sql)) {
             stm.setString(1, "%" + nombre + "%");
             ResultSet rs = db.executeQuery(stm);
-            while (rs.next()) lista.add(from(rs));
+            while (rs.next()) {
+                lista.add(from(rs, "f"));
+            }
         } catch (SQLException ex) {
-            System.out.println("Error filtrando farmaceutas: " + ex.getMessage());
+            throw new Exception("Error buscando farmaceutas: " + ex.getMessage(), ex);
         }
         return lista;
     }
 
-    private Farmaceuta from(ResultSet rs) {
-        try {
-            Farmaceuta f = new Farmaceuta();
-            f.setId(rs.getString("id"));
-            f.setNombre(rs.getString("nombre"));
-            f.setClave(rs.getString("clave"));
-            f.setRol(rs.getString("rol"));
-            return f;
-        } catch (SQLException ex) {
-            return null;
-        }
-    }
-
-
-
-    private Farmaceuta from(ResultSet rs, String alias) {
+    private Farmaceuta from(ResultSet rs, String alias) throws Exception {
         try {
             Farmaceuta f = new Farmaceuta();
             f.setId(rs.getString(alias + ".id"));
@@ -104,7 +117,7 @@ public class FarmaceutaDao {
             f.setRol(rs.getString(alias + ".rol"));
             return f;
         } catch (SQLException ex) {
-            return null;
+            throw new Exception("Error al mapear farmaceuta desde ResultSet: " + ex.getMessage(), ex);
         }
     }
 }

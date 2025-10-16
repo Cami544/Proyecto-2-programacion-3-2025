@@ -29,7 +29,7 @@ public class Model  extends AbstractModel {
     public static final String CRITERIO_Filtro_RECETA = "criterioFiltro";
 
 
-    public Model() {
+    public Model() throws Exception {
        this.recetas= Service.instance().getRecetas();
        this.recetasFiltradasPaciente = new ArrayList<>();
        this.listFarmaceutas = Service.instance().getFarmaceutas();

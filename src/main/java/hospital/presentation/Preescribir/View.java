@@ -83,7 +83,12 @@ public class View implements PropertyChangeListener {
         buscarPacienteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AgregaPacienteDialog dialog = new AgregaPacienteDialog();
+                AgregaPacienteDialog dialog = null;
+                try {
+                    dialog = new AgregaPacienteDialog();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
 
