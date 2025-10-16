@@ -121,6 +121,7 @@ public class View implements PropertyChangeListener {
                 guardarReceta();
             }
         });
+
         eliminarEspecificoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

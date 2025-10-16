@@ -183,25 +183,33 @@ public class Service {
 
     // ========================= RECETAS ========================
 
-    public void createReceta(Receta receta) throws Exception {
-        try {
-            Receta existente = recetaDao.read(receta.getId());
-            if (existente != null) {
-                throw new Exception("Receta ya existe");
-            }
-        } catch (Exception e) {
-            if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no existe")) {
-                recetaDao.create(receta);
-                return;
-            }
-            throw e;
-        }
-        recetaDao.create(receta);
-    }
 
     public void createReceta(Receta receta, LocalDate fechaRetiro) throws Exception {
-        receta.setFechaRetiro(fechaRetiro);
-        createReceta(receta);
+
+        readPaciente(receta.getPacienteId());
+        for (DetalleReceta detalle : receta.getDetalles()) {
+            readMedicamento(detalle.getMedicamentoCodigo());
+        }
+
+        Receta existente = null;
+        try {
+            existente = recetaDao.read(receta.getId());
+        } catch (Exception ignored) {}
+
+        if (existente != null) {
+            throw new Exception("Receta con id " + receta.getId() + " ya existe");
+        }
+
+        if (receta.getFecha() == null) receta.setFecha(LocalDate.now());
+        if (fechaRetiro != null) receta.setFechaRetiro(fechaRetiro);
+        else if (receta.getFechaRetiro() == null)
+            receta.setFechaRetiro(receta.getFecha().plusDays(1));
+            recetaDao.create(receta);
+
+        for (DetalleReceta detalle : receta.getDetalles()) {
+            detalle.setRecetaId(receta.getId());
+            detalleRecetaDao.create(detalle);
+        }
     }
 
     public Receta readReceta(String id) throws Exception {

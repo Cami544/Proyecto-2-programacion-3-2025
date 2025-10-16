@@ -59,7 +59,7 @@ CREATE TABLE `detallereceta` (
   KEY `medicamentoCodigo` (`medicamentoCodigo`),
   CONSTRAINT `detallereceta_ibfk_1` FOREIGN KEY (`recetaId`) REFERENCES `receta` (`id`),
   CONSTRAINT `detallereceta_ibfk_2` FOREIGN KEY (`medicamentoCodigo`) REFERENCES `medicamento` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,7 +93,7 @@ CREATE TABLE `farmaceuta` (
 
 LOCK TABLES `farmaceuta` WRITE;
 /*!40000 ALTER TABLE `farmaceuta` DISABLE KEYS */;
-INSERT INTO `farmaceuta` VALUES ('F001','Carlos Jiménez','farm2025','FAR');
+INSERT INTO `farmaceuta` VALUES ('8346l','Camila','8346l','FAR'),('F001','Carlos Jiménez','farm2025','FAR');
 /*!40000 ALTER TABLE `farmaceuta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,6 +118,7 @@ CREATE TABLE `medicamento` (
 
 LOCK TABLES `medicamento` WRITE;
 /*!40000 ALTER TABLE `medicamento` DISABLE KEYS */;
+INSERT INTO `medicamento` VALUES ('K003','Acetaminofen','Pastilla'),('L86','Loratadina','Pastilla');
 /*!40000 ALTER TABLE `medicamento` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +145,7 @@ CREATE TABLE `medico` (
 
 LOCK TABLES `medico` WRITE;
 /*!40000 ALTER TABLE `medico` DISABLE KEYS */;
-INSERT INTO `medico` VALUES ('M001','Dr. Ana Rojas','clave123','Pediatría','MED');
+INSERT INTO `medico` VALUES ('123','Gregory','123','General','MED'),('M001','Dr. Ana Rojas','clave123','Pediatría','MED');
 /*!40000 ALTER TABLE `medico` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,6 +171,7 @@ CREATE TABLE `paciente` (
 
 LOCK TABLES `paciente` WRITE;
 /*!40000 ALTER TABLE `paciente` DISABLE KEYS */;
+INSERT INTO `paciente` VALUES ('3200','Victor','2023-10-05','203'),('856','Fabricio','2025-10-10','8561');
 /*!40000 ALTER TABLE `paciente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -182,14 +184,14 @@ DROP TABLE IF EXISTS `receta`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `receta` (
   `id` varchar(20) NOT NULL,
-  `pacienteId` varchar(20) DEFAULT NULL,
+  `pacienteId` varchar(20) NOT NULL,
   `farmaceutaId` varchar(20) DEFAULT NULL,
   `fecha` date DEFAULT NULL,
   `fechaRetiro` date DEFAULT NULL,
   `estadoReceta` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `pacienteId` (`pacienteId`),
   KEY `farmaceutaId` (`farmaceutaId`),
+  KEY `receta_ibfk_1` (`pacienteId`),
   CONSTRAINT `receta_ibfk_1` FOREIGN KEY (`pacienteId`) REFERENCES `paciente` (`id`),
   CONSTRAINT `receta_ibfk_2` FOREIGN KEY (`farmaceutaId`) REFERENCES `farmaceuta` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -238,4 +240,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-15 22:22:46
+-- Dump completed on 2025-10-16  0:53:09

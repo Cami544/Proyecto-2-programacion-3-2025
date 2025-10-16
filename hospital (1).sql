@@ -93,7 +93,7 @@ CREATE TABLE `farmaceuta` (
 
 LOCK TABLES `farmaceuta` WRITE;
 /*!40000 ALTER TABLE `farmaceuta` DISABLE KEYS */;
-INSERT INTO `farmaceuta` VALUES ('F001','Carlos Jiménez','farm2025','FAR');
+INSERT INTO `farmaceuta` VALUES ('8346l','Camila','8346l','FAR'),('F001','Carlos Jiménez','farm2025','FAR');
 /*!40000 ALTER TABLE `farmaceuta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,6 +118,7 @@ CREATE TABLE `medicamento` (
 
 LOCK TABLES `medicamento` WRITE;
 /*!40000 ALTER TABLE `medicamento` DISABLE KEYS */;
+INSERT INTO `medicamento` VALUES ('K003','Acetaminofen','Pastilla'),('L86','Loratadina','Pastilla');
 /*!40000 ALTER TABLE `medicamento` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +145,7 @@ CREATE TABLE `medico` (
 
 LOCK TABLES `medico` WRITE;
 /*!40000 ALTER TABLE `medico` DISABLE KEYS */;
-INSERT INTO `medico` VALUES ('M001','Dr. Ana Rojas','clave123','Pediatría','MED');
+INSERT INTO `medico` VALUES ('123','Gregory','123','General','MED'),('M001','Dr. Ana Rojas','clave123','Pediatría','MED');
 /*!40000 ALTER TABLE `medico` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,6 +171,7 @@ CREATE TABLE `paciente` (
 
 LOCK TABLES `paciente` WRITE;
 /*!40000 ALTER TABLE `paciente` DISABLE KEYS */;
+INSERT INTO `paciente` VALUES ('3200','Victor','2023-10-05','203'),('856','Fabricio','2025-10-10','8561');
 /*!40000 ALTER TABLE `paciente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -238,4 +240,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-15 22:22:46
+-- Dump completed on 2025-10-16  0:19:35
