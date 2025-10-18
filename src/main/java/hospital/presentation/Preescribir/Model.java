@@ -132,16 +132,11 @@ public class Model extends AbstractModel {
 
     public void nuevaReceta() {
         if (pacienteSeleccionado != null) {
-            String recetaId = generarIdReceta();
-            this.recetaActual = new Receta(recetaId, pacienteSeleccionado.getId(), LocalDate.now());
+            this.recetaActual = new Receta(pacienteSeleccionado.getId(), LocalDate.now());
             this.recetaActual.setFechaRetiro(this.fechaRetiro);
             this.recetaActual.setDetalles(new ArrayList<>(this.detallesReceta));
             firePropertyChange(RECETA_ACTUAL);
         }
     }
 
-    private String generarIdReceta() {
-        long timestamp = System.currentTimeMillis();
-        return "REC-" + LocalDate.now().toString().replace("-", "") + "-" + (timestamp % 10000);
-    }
 }

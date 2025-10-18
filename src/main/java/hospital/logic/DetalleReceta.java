@@ -2,7 +2,7 @@ package hospital.logic;
 
 public class DetalleReceta {
     private int id;
-    private String recetaId;
+    private int recetaId;
     private String medicamentoCodigo;
     private int cantidad;
     private String indicaciones;
@@ -16,7 +16,7 @@ public class DetalleReceta {
         this.indicaciones = indicaciones;
     }
 
-    public DetalleReceta(String recetaId, String medicamentoCodigo, int cantidad, String indicaciones) {
+    public DetalleReceta(int recetaId, String medicamentoCodigo, int cantidad, String indicaciones) {
         this.recetaId = recetaId;
         this.medicamentoCodigo = medicamentoCodigo;
         this.cantidad = cantidad;
@@ -31,11 +31,11 @@ public class DetalleReceta {
         this.id = id;
     }
 
-    public String getRecetaId() {
+    public int getRecetaId() {
         return recetaId;
     }
 
-    public void setRecetaId(String recetaId) {
+    public void setRecetaId(int recetaId) {
         this.recetaId = recetaId;
     }
 

@@ -183,7 +183,6 @@ public class Service {
 
     // ========================= RECETAS ========================
 
-
     public void createReceta(Receta receta, LocalDate fechaRetiro) throws Exception {
 
         readPaciente(receta.getPacienteId());
@@ -212,7 +211,7 @@ public class Service {
         }
     }
 
-    public Receta readReceta(String id) throws Exception {
+    public Receta readReceta(int id) throws Exception {
         return recetaDao.read(id);
     }
 
@@ -220,7 +219,7 @@ public class Service {
         recetaDao.update(r);
     }
 
-    public void deleteReceta(String id) throws Exception {
+    public void deleteReceta(int id) throws Exception {
         recetaDao.delete(id);
     }
 
@@ -364,7 +363,7 @@ public class Service {
         detalleRecetaDao.create(detalle);
     }
 
-    public List<DetalleReceta> getDetallesPorReceta(String recetaId) throws Exception {
+    public List<DetalleReceta> getDetallesPorReceta(int recetaId) throws Exception {
         return detalleRecetaDao.findByReceta(recetaId);
     }
 

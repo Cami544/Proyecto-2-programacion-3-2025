@@ -19,7 +19,7 @@ public class DetalleRecetaDao {
     public void create(DetalleReceta d) throws Exception {
         String sql = "INSERT INTO DetalleReceta (recetaId, medicamentoCodigo, cantidad, indicaciones) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, d.getRecetaId());
+            stm.setInt(1, d.getRecetaId());
             stm.setString(2, d.getMedicamentoCodigo());
             stm.setInt(3, d.getCantidad());
             stm.setString(4, d.getIndicaciones());
@@ -29,10 +29,10 @@ public class DetalleRecetaDao {
         }
     }
 
-    public void create(String recetaId, DetalleReceta d) throws Exception {
+    public void create(int recetaId, DetalleReceta d) throws Exception {
         String sql = "INSERT INTO DetalleReceta (recetaId, medicamentoCodigo, cantidad, indicaciones) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, recetaId);
+            stm.setInt(1, recetaId);
             stm.setString(2, d.getMedicamentoCodigo());
             stm.setInt(3, d.getCantidad());
             stm.setString(4, d.getIndicaciones());
@@ -42,11 +42,11 @@ public class DetalleRecetaDao {
         }
     }
 
-    public List<DetalleReceta> findByReceta(String recetaId) throws Exception {
+    public List<DetalleReceta> findByReceta(int recetaId) throws Exception {
         List<DetalleReceta> lista = new ArrayList<>();
         String sql = "SELECT * FROM DetalleReceta WHERE recetaId=?";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, recetaId);
+            stm.setInt(1, recetaId);
             ResultSet rs = db.executeQuery(stm);
             while (rs.next()) {
                 DetalleReceta d = new DetalleReceta(
@@ -92,10 +92,10 @@ public class DetalleRecetaDao {
         }
     }
 
-    public void deleteByReceta(String recetaId) throws Exception {
+    public void deleteByReceta(int recetaId) throws Exception {
         String sql = "DELETE FROM DetalleReceta WHERE recetaId=?";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, recetaId);
+            stm.setInt(1, recetaId);
             db.executeUpdate(stm);
         } catch (SQLException ex) {
             throw new Exception("Error al eliminar detalles de receta: " + ex.getMessage(), ex);
@@ -121,7 +121,7 @@ public class DetalleRecetaDao {
         try {
             DetalleReceta d = new DetalleReceta();
             d.setId(rs.getInt("id"));
-            d.setRecetaId(rs.getString("recetaId"));
+            d.setRecetaId(rs.getInt("recetaId"));
             d.setMedicamentoCodigo(rs.getString("medicamentoCodigo"));
             d.setCantidad(rs.getInt("cantidad"));
             d.setIndicaciones(rs.getString("indicaciones"));

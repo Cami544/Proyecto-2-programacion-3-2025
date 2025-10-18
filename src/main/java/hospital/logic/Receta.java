@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public class Receta {
-    private String id;
+    private int id;
     private String pacienteId;
     private String farmaceutaId;
     private String estadoReceta;
@@ -21,7 +21,7 @@ public class Receta {
         farmaceutaId = "Sin asignar";
     }
 
-    public Receta(String id, String pacienteId, LocalDate fecha) {
+    public Receta(int id, String pacienteId, LocalDate fecha) {
         this.id = id;
         this.pacienteId = pacienteId;
         this.fecha = fecha;
@@ -30,11 +30,19 @@ public class Receta {
         this.farmaceutaId = "Sin asignar";
     }
 
-    public String getId() {
+    public Receta( String pacienteId, LocalDate fecha) {
+        this.pacienteId = pacienteId;
+        this.fecha = fecha;
+        this.fechaRetiro = fecha.plusDays(1);
+        this.estadoReceta = "Confeccionada";
+        this.farmaceutaId = "Sin asignar";
+    }
+
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

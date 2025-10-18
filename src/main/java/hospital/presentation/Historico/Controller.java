@@ -40,35 +40,28 @@ public class Controller {
 
         System.out.println("Historico actualizado. Total de recetas: " + todasLasRecetas.size());
     }
+    public void buscarRecetas(int criterio) throws Exception {
+        model.setCriterioFiltro(String.valueOf(criterio));
 
-    public void buscarRecetas(String criterio) throws Exception {
-        model.setCriterioFiltro(criterio);
-
-        if (criterio == null || criterio.trim().isEmpty()) {
-            model.setRecetasFiltradas(model.getRecetas());
-            return;
-        }
-
-        String criterioBusqueda = criterio.toLowerCase().trim();
         List<Receta> todasLasRecetas = model.getRecetas();
         List<Receta> recetasFiltradas = new ArrayList<>();
 
         for (Receta receta : todasLasRecetas) {
-            if (receta.getId().toLowerCase().contains(criterioBusqueda)) {
+            if (receta.getId() == criterio) {
                 recetasFiltradas.add(receta);
             }
         }
 
         if (recetasFiltradas.isEmpty()) {
             for (Receta receta : todasLasRecetas) {
-                if (receta.getPacienteId().toLowerCase().equals(criterioBusqueda)) {
+                if (receta.getPacienteId().equals(String.valueOf(criterio))) {
                     recetasFiltradas.add(receta);
                 }
             }
 
             if (recetasFiltradas.isEmpty()) {
                 try {
-                    List<Paciente> pacientesEncontrados = Service.instance().searchPacientes(criterioBusqueda);
+                    List<Paciente> pacientesEncontrados = Service.instance().searchPacientes(String.valueOf(criterio));
 
                     if (!pacientesEncontrados.isEmpty()) {
                         List<String> idsLPacientes = pacientesEncontrados.stream()
@@ -87,7 +80,7 @@ public class Controller {
 
         model.setRecetasFiltradas(recetasFiltradas);
 
-        System.out.println("Criterio de busqueda: " + criterio);
+        System.out.println("Criterio de búsqueda: " + criterio);
         System.out.println("Total recetas en sistema: " + todasLasRecetas.size());
         System.out.println("Recetas encontradas: " + recetasFiltradas.size());
 
@@ -99,6 +92,7 @@ public class Controller {
             }
         }
     }
+
 
     public void seleccionarReceta(int index) throws Exception {
         List<Receta> recetasMostradas = model.getRecetasFiltradas();

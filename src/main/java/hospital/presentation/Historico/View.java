@@ -91,10 +91,10 @@ public class View implements PropertyChangeListener {
         }
 
         try {
-            String criterio = buscarHistField.getText().trim();
+           int criterio = Integer.parseInt(buscarHistField.getText().trim());
             controller.buscarRecetas(criterio);
 
-            if (model.getRecetasFiltradas().isEmpty() && !criterio.isEmpty()) {
+            if (model.getRecetasFiltradas().isEmpty() ) {
                 JOptionPane.showMessageDialog(panel1,
                         "No se encontraron recetas con el criterio: " + criterio,
                         "Sin resultados",

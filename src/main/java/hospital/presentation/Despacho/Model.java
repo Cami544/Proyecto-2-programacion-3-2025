@@ -88,9 +88,10 @@ public class Model  extends AbstractModel {
 
     public void actualizarRecetaEnListas(Receta receta) {
         boolean changed = false;
+
         if (recetas != null) {
             for (int i = 0; i < recetas.size(); i++) {
-                if (recetas.get(i).getId().equals(receta.getId())) {
+                if (recetas.get(i).getId() == receta.getId()) {
                     recetas.set(i, receta);
                     changed = true;
                     break;
@@ -100,18 +101,20 @@ public class Model  extends AbstractModel {
 
         if (recetasFiltradasPaciente != null) {
             for (int i = 0; i < recetasFiltradasPaciente.size(); i++) {
-                if (recetasFiltradasPaciente.get(i).getId().equals(receta.getId())) {
+                if (recetasFiltradasPaciente.get(i).getId() == receta.getId()) {
                     recetasFiltradasPaciente.set(i, receta);
                     changed = true;
                     break;
                 }
             }
         }
+
         this.recetaSeleccionada = receta;
         firePropertyChange(LIST_RECETA);
         firePropertyChange(RECETA_FILTRADO);
         firePropertyChange(RECETA_SELECCIONADO);
     }
+
 
 
     public List<Receta> getRecetasFiltradasPaciente() { return recetasFiltradasPaciente;}
