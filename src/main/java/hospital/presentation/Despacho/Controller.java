@@ -75,7 +75,13 @@ public class Controller {
         if (estado != null && !estado.isEmpty()) {
             receta.setEstadoReceta(estado);
         }
+        Service.instance().updateReceta(receta); //guarda cambio en sql
+
         model.actualizarRecetaEnListas(receta);
+
+        System.out.println("Receta actualizada en base de datos: ID " + receta.getId() +
+                ", farmaceutaId=" + receta.getFarmaceutaId() +
+                ", estado=" + receta.getEstadoReceta());
     }
 
     public void seleccionarRecetaPaciente(int index) throws Exception {

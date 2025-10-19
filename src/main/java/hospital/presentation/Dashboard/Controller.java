@@ -1,5 +1,6 @@
 package hospital.presentation.Dashboard;
 
+import hospital.logic.DetalleReceta;
 import hospital.logic.Medicamento;
 import hospital.logic.Receta;
 import hospital.logic.Service;
@@ -24,6 +25,7 @@ public class Controller {
         try {
             List<Receta> recetasOriginales = Service.instance().getRecetas();
             model.setRecetasDashboard(new ArrayList<>(recetasOriginales));
+            System.out.println("Recetas cargadas al Dashboard: " + recetasOriginales.size());
         } catch (Exception e) {
             model.setRecetasDashboard(new ArrayList<>());
         }
@@ -83,89 +85,120 @@ public class Controller {
 
             if (desde == null || hasta == null) return estadisticas;
 
+            // Filtrar recetas dentro del rango de fechas
             List<Receta> recetasFiltradas = recetas.stream()
                     .filter(r -> {
                         LocalDate fechaRef = (r.getFechaRetiro() != null) ? r.getFechaRetiro() : r.getFecha();
-                        if (fechaRef == null) return false;
-                        return !fechaRef.isBefore(desde) && !fechaRef.isAfter(hasta);
+                        return fechaRef != null && !fechaRef.isBefore(desde) && !fechaRef.isAfter(hasta);
                     })
                     .collect(Collectors.toList());
 
-            Map<String, Map<String, Integer>> agrupados = new HashMap<>();
+            // Mapa: periodo -> (codigoMedicamento -> cantidad total)
+            Map<String, Map<String, Integer>> cantidadesPorMes = new LinkedHashMap<>();
+            // Mapa: periodo -> (codigoMedicamento -> set de recetas únicas)
+            Map<String, Map<String, Set<String>>> recetasPorMes = new LinkedHashMap<>();
 
-            for (Receta r : recetasFiltradas) {
-                LocalDate fechaRef = (r.getFechaRetiro() != null) ? r.getFechaRetiro() : r.getFecha();
+            for (Receta receta : recetasFiltradas) {
+                LocalDate fechaRef = (receta.getFechaRetiro() != null) ? receta.getFechaRetiro() : receta.getFecha();
                 if (fechaRef == null) continue;
-
                 String periodo = fechaRef.format(formatter);
 
-                if (r.getDetalles() != null) {
-                    for (hospital.logic.DetalleReceta d : r.getDetalles()) {
-                        String codigoMed = d.getMedicamentoCodigo();
+                cantidadesPorMes.computeIfAbsent(periodo, k -> new HashMap<>());
+                recetasPorMes.computeIfAbsent(periodo, k -> new HashMap<>());
 
-                        if (medicamento != null && !medicamento.getCodigo().equals(codigoMed)) {
-                            continue;
-                        }
+                if (receta.getDetalles() == null) continue;
 
-                        agrupados.putIfAbsent(periodo, new HashMap<>());
-                        Map<String, Integer> medMap = agrupados.get(periodo);
-                        medMap.put(codigoMed, medMap.getOrDefault(codigoMed, 0) + d.getCantidad());
+                // Obtener ID único de receta (en caso de error, usar identidad de objeto)
+                String recetaId;
+                try {
+                    recetaId = String.valueOf(receta.getId());
+                } catch (Exception ex) {
+                    recetaId = String.valueOf(System.identityHashCode(receta));
+                }
+
+                for (DetalleReceta detalle : receta.getDetalles()) {
+                    if (detalle == null) continue;
+                    String codigoMed = detalle.getMedicamentoCodigo();
+                    if (codigoMed == null) continue;
+
+                    // Si hay filtro por medicamento, se aplica
+                    if (medicamento != null && medicamento.getCodigo() != null &&
+                            !medicamento.getCodigo().equals(codigoMed)) {
+                        continue;
                     }
+
+                    // Acumular cantidad total
+                    cantidadesPorMes.get(periodo).merge(codigoMed, detalle.getCantidad(), Integer::sum);
+                    // Registrar receta única por medicamento
+                    recetasPorMes.get(periodo).computeIfAbsent(codigoMed, k -> new HashSet<>()).add(recetaId);
                 }
             }
 
-            for (Map.Entry<String, Map<String, Integer>> entry : agrupados.entrySet()) {
-                String periodo = entry.getKey();
-                for (Map.Entry<String, Integer> medEntry : entry.getValue().entrySet()) {
-                    String codigo = medEntry.getKey();
-                    int cantidad = medEntry.getValue();
-                    String nombre = obtenerNombreMedicamento(codigo);
+            // Construcción final de las estadísticas
+            for (String periodo : cantidadesPorMes.keySet()) {
+                Map<String, Integer> mapMedCant = cantidadesPorMes.get(periodo);
 
-                    long numRecetas = recetasFiltradas.stream()
-                            .filter(r -> {
-                                LocalDate fechaRef = (r.getFechaRetiro() != null) ? r.getFechaRetiro() : r.getFecha();
-                                if (fechaRef == null) return false;
-                                if (!fechaRef.format(formatter).equals(periodo)) return false;
-                                if (r.getDetalles() == null) return false;
-                                return r.getDetalles().stream()
-                                        .anyMatch(d -> d.getMedicamentoCodigo().equals(codigo));
-                            })
-                            .count();
+                for (Map.Entry<String, Integer> entry : mapMedCant.entrySet()) {
+                    String codigo = entry.getKey();
+                    int cantidad = entry.getValue();
 
-                    estadisticas.add(new Object[]{periodo, nombre, cantidad, (int) numRecetas});
+                    int numRecetas = 0;
+                    if (recetasPorMes.containsKey(periodo) && recetasPorMes.get(periodo).containsKey(codigo)) {
+                        numRecetas = recetasPorMes.get(periodo).get(codigo).size();
+                    }
+
+                    String nombre = codigo;
+                    try {
+                        Medicamento med = Service.instance().readMedicamento(codigo);
+                        if (med != null && med.getNombre() != null) {
+                            nombre = med.getNombre();
+                        }
+                    } catch (Exception ignored) {
+                    }
+
+                    estadisticas.add(new Object[]{periodo, nombre, cantidad, numRecetas});
                 }
             }
 
+            // Ordenar cronológicamente por periodo (MM/yyyy)
             estadisticas.sort((a, b) -> ((String) a[0]).compareTo((String) b[0]));
 
         } catch (Exception e) {
-            System.err.println("Error generando estadisticas de medicamentos: " + e.getMessage());
+            System.err.println("Error generando estadísticas de medicamentos: " + e.getMessage());
         }
 
+        System.out.println("Datos estadísticos generados: " + estadisticas.size());
         return estadisticas;
     }
+
 
     private Map<String, Integer> generarEstadisticasRecetas() {
         Map<String, Integer> estadisticas = new HashMap<>();
 
         try {
-            List<Receta> recetas = model.getRecetasDashboard();
-            if (recetas == null) return estadisticas;
+            List<Receta> todasRecetas = Service.instance().getRecetas();
 
-            long confeccionadas = recetas.stream()
-                    .filter(r -> "Confeccionada".equalsIgnoreCase(r.getEstadoReceta()))
-                    .count();
+            int confeccionadas = 0;
+            int enProceso = 0;
+            int listas = 0;
+            int entregadas = 0;
 
-            long despachadas = recetas.stream()
-                    .filter(r -> "Despachada".equalsIgnoreCase(r.getEstadoReceta()))
-                    .count();
+            for (Receta r : todasRecetas) {
+                switch (r.getEstadoReceta()) {
+                    case "Confeccionada" -> confeccionadas++;
+                    case "En proceso" -> enProceso++;
+                    case "Lista" -> listas++;
+                    case "Entregada" -> entregadas++;
+                }
+            }
 
-            estadisticas.put("Confeccionadas", (int) confeccionadas);
-            estadisticas.put("Despachadas", (int) despachadas);
-            estadisticas.put("Total", recetas.size());
+            estadisticas.put("Confeccionadas", confeccionadas);
+            estadisticas.put("En Proceso", enProceso);
+            estadisticas.put("Listas", listas);
+            estadisticas.put("Entregadas", entregadas);
 
         } catch (Exception e) {
-            System.err.println("Error generando estadisticas de recetas: " + e.getMessage());
+            System.err.println("Error generando estadísticas de recetas: " + e.getMessage());
         }
 
         return estadisticas;

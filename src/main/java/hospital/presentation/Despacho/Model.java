@@ -115,14 +115,12 @@ public class Model  extends AbstractModel {
         firePropertyChange(RECETA_SELECCIONADO);
     }
 
-
-
     public List<Receta> getRecetasFiltradasPaciente() { return recetasFiltradasPaciente;}
 
     void setListRecetaPacienteFiltrado(List<Receta> list) {
         this.recetasFiltradasPaciente = list;
         firePropertyChange(RECETA_FILTRADO);
     }
-    }
+}
 
 

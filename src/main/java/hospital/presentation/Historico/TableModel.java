@@ -28,7 +28,7 @@ public class TableModel extends AbstractTableModel<Receta> implements javax.swin
             case ID_RECETA:
                 return receta.getId();
             case PACIENTE:
-                return obtenerNombrePaciente(receta.getPacienteId());
+                return receta.getPacienteId()  +" - "+   obtenerNombrePaciente(receta.getPacienteId())  ;
             case FECHA_CONFECCION:
                 return receta.getFecha().format(formatter);
             case FECHA_RETIRO:

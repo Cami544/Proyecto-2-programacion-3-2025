@@ -20,10 +20,10 @@ public class RecetaDao {
 
     public void create(Receta receta) throws Exception {
         String sql = "INSERT INTO receta (pacienteId, farmaceutaId, estadoReceta, fecha, fechaRetiro) VALUES (?, ?, ?, ?, ?)";
-        Connection cnx = db.getConnection(); // asumo que DB expone getConnection()
+        Connection cnx = db.getConnection();
         boolean previousAutoCommit = cnx.getAutoCommit();
         try {
-            cnx.setAutoCommit(false); // iniciar transacción
+            cnx.setAutoCommit(false);
 
             try (PreparedStatement stmt = db.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 // Debug: imprimir lo que vamos a insertar
@@ -69,6 +69,11 @@ public class RecetaDao {
                         int idGenerado = rs.getInt(1);
                         receta.setId(idGenerado);
                         System.out.println("Receta creada con ID autogenerado: " + idGenerado);
+//Rastreo de error
+                        for (DetalleReceta detalle : receta.getDetalles()) {
+                            System.out.println("[DEBUG] Insertando detalle con recetaId asignado: " + detalle.getRecetaId());
+                        }
+
                     } else {
                         throw new SQLException("No se obtuvo el ID generado para la receta.");
                     }
@@ -173,6 +178,37 @@ public class RecetaDao {
             throw new Exception("Error al obtener todas las recetas: " + ex.getMessage(), ex);
         }
         return lista;
+    }
+
+    public List<Object[]> getCantidadMedicamentosPorMes() {
+        List<Object[]> resultados = new ArrayList<>();
+
+        // Cadena SQL en formato clásico (compatible con Java 8+)
+        String sql =
+                "SELECT DATE_FORMAT(r.fecha, '%m/%Y') AS periodo, " +
+                "       SUM(dr.cantidad) AS total " +
+                "FROM receta r " +
+                "JOIN detallereceta dr ON r.id = dr.recetaId " +
+                "GROUP BY periodo " +
+                "ORDER BY STR_TO_DATE(CONCAT('01/', periodo), '%d/%m/%Y');";
+
+        Database db = Database.instance();
+        try (PreparedStatement ps = db.prepareStatement(sql);
+             ResultSet rs = db.executeQuery(ps)) {
+
+            while (rs != null && rs.next()) {
+                String periodo = rs.getString("periodo");
+                int total = rs.getInt("total");
+                resultados.add(new Object[]{ periodo, total });
+            }
+
+        } catch (SQLException e) {
+            // imprime traza para ver el problema en detalle
+            e.printStackTrace();
+        }
+
+        System.out.println("[DEBUG] getCantidadMedicamentosPorMes -> filas: " + resultados.size());
+        return resultados;
     }
 
     public List<Receta> filterByPaciente(String pacienteId) throws Exception {

@@ -205,10 +205,7 @@ public class Service {
             receta.setFechaRetiro(receta.getFecha().plusDays(1));
             recetaDao.create(receta);
 
-        for (DetalleReceta detalle : receta.getDetalles()) {
-            detalle.setRecetaId(receta.getId());
-            detalleRecetaDao.create(detalle);
-        }
+        System.out.println("Receta creada exitosamente con ID: " + receta.getId());
     }
 
     public Receta readReceta(int id) throws Exception {
@@ -374,4 +371,9 @@ public class Service {
     public void deleteDetalleReceta(int id) throws Exception {
         detalleRecetaDao.delete(id);
     }
+
+    public List<DetalleReceta> getAllDetallesReceta() throws Exception {
+        return detalleRecetaDao.getAll();
+    }
+
 }
