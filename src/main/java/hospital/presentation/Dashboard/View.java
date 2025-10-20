@@ -9,7 +9,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-
+import java.awt.Color;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
@@ -19,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class View implements PropertyChangeListener {
     private JComboBox<String> desdeAnio;
@@ -397,26 +400,53 @@ public class View implements PropertyChangeListener {
 
     private void actualizarGraficoLineas() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
         Map<String, Map<String, Integer>> agrupado = new HashMap<>();
 
-        for (Object[] fila : model.getDatosEstadisticas()) {
+        List<Object[]> datosEstadisticas = model.getDatosEstadisticas();
+        if (datosEstadisticas == null || datosEstadisticas.isEmpty()) {
+            crearGraficoVacio();
+            return;
+        }
+
+        for (Object[] fila : datosEstadisticas) {
+            if (fila == null || fila.length < 3) {
+                continue;
+            }
+
             String periodo = (String) fila[0];
             String medicamento = (String) fila[1];
             Integer cantidad = (Integer) fila[2];
+
+            if (periodo == null || medicamento == null || cantidad == null) {
+                continue;
+            }
 
             agrupado.putIfAbsent(periodo, new HashMap<>());
             agrupado.get(periodo).merge(medicamento, cantidad, Integer::sum);
         }
 
+        if (agrupado.isEmpty()) {
+            crearGraficoVacio();
+            return;
+        }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
         List<String> periodosOrdenados = agrupado.keySet().stream()
-                .sorted(Comparator.comparing(p -> java.time.YearMonth.parse(p, formatter)))
-                .toList();
+                .sorted(Comparator.comparing(p -> {
+                    try {
+                        return java.time.YearMonth.parse(p, formatter);
+                    } catch (Exception e) {
+                        return java.time.YearMonth.now();
+                    }
+                }))
+                .collect(Collectors.toList());
 
         for (String periodo : periodosOrdenados) {
-            for (Map.Entry<String, Integer> entryMed : agrupado.get(periodo).entrySet()) {
-                dataset.addValue(entryMed.getValue(), entryMed.getKey(), periodo);
+            Map<String, Integer> medicamentosPorPeriodo = agrupado.get(periodo);
+            if (medicamentosPorPeriodo != null) {
+                for (Map.Entry<String, Integer> entryMed : medicamentosPorPeriodo.entrySet()) {
+                    dataset.addValue(entryMed.getValue(), entryMed.getKey(), periodo);
+                }
             }
         }
 
@@ -424,13 +454,40 @@ public class View implements PropertyChangeListener {
                 "Medicamentos prescritos por mes",
                 "Mes",
                 "Cantidad",
-                dataset
+                dataset,
+                org.jfree.chart.plot.PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
         );
+
+        org.jfree.chart.plot.CategoryPlot plot = chart.getCategoryPlot();
+        org.jfree.chart.renderer.category.LineAndShapeRenderer renderer =
+                new org.jfree.chart.renderer.category.LineAndShapeRenderer(true, true);
+
+        plot.setRenderer(renderer);
+
         panelGraficoLineas.removeAll();
         panelGraficoLineas.add(new ChartPanel(chart));
         panelGraficoLineas.revalidate();
         panelGraficoLineas.repaint();
     }
+
+    private void crearGraficoVacio() {
+        DefaultCategoryDataset emptyDataset = new DefaultCategoryDataset();
+        JFreeChart chart = ChartFactory.createLineChart(
+                "Medicamentos prescritos por mes",
+                "Mes",
+                "Cantidad",
+                emptyDataset
+        );
+
+        panelGraficoLineas.removeAll();
+        panelGraficoLineas.add(new ChartPanel(chart));
+        panelGraficoLineas.revalidate();
+        panelGraficoLineas.repaint();
+    }
+
 
     private void actualizarGraficoPastel() {
         DefaultPieDataset dataset = new DefaultPieDataset();
