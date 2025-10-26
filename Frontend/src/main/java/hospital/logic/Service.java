@@ -56,7 +56,7 @@ public class Service{
 
     public void deletePaciente(String id) throws Exception {
         os.writeInt(Protocol.PACIENTE_DELETE);
-        os.writeObject(id);
+        os.writeUTF(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("PACIENTE NO EXISTE");
@@ -65,7 +65,7 @@ public class Service{
     public List<Paciente> searchPacientes(String nombre) {
         try {
             os.writeInt(Protocol.PACIENTE_SEARCH);
-            os.writeObject(nombre);
+            os.writeUTF(nombre);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Paciente>) is.readObject();
@@ -121,7 +121,7 @@ public class Service{
 
     public void deleteMedico(String id) throws Exception {
         os.writeInt(Protocol.MEDICO_DELETE);
-        os.writeObject(id);
+        os.writeUTF(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("MEDICO NO EXISTE");
@@ -130,7 +130,7 @@ public class Service{
     public List<Medico> searchMedicos(String nombre) {
         try {
             os.writeInt(Protocol.MEDICO_SEARCH);
-            os.writeObject(nombre);
+            os.writeUTF(nombre);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Medico>) is.readObject();
@@ -140,6 +140,7 @@ public class Service{
             throw new RuntimeException(ex);
         }
     }
+
 
     public List<Medico> getMedicos(){
         try {
@@ -186,7 +187,7 @@ public class Service{
 
     public void deleteFarmaceuta(String id) throws Exception {
         os.writeInt(Protocol.FARMACEUTA_DELETE);
-        os.writeObject(id);
+        os.writeUTF(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("FARMACEUTA NO EXISTE");
@@ -195,7 +196,7 @@ public class Service{
     public List<Farmaceuta> searchFarmaceutas(String nombre) {
         try {
             os.writeInt(Protocol.FARMACEUTA_SEARCH);
-            os.writeObject(nombre);
+            os.writeUTF(nombre);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Farmaceuta>) is.readObject();
@@ -251,7 +252,7 @@ public class Service{
 
     public void deleteMedicamento(String id) throws Exception {
         os.writeInt(Protocol.MEDICAMENTO_DELETE);
-        os.writeObject(id);
+        os.writeUTF(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("MEDICAMENTO NO EXISTE");
@@ -260,7 +261,7 @@ public class Service{
     public List<Medicamento> searchMedicamentos(String nombre) {
         try {
             os.writeInt(Protocol.MEDICAMENTO_SEARCH);
-            os.writeObject(nombre);
+            os.writeUTF(nombre);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Medicamento>) is.readObject();
@@ -328,7 +329,7 @@ public class Service{
     public List<Receta> searchRecetasByPaciente(String nombre) {
         try {
             os.writeInt(Protocol.RECETA_SEARCH);
-            os.writeObject(nombre);
+            os.writeUTF(nombre);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Receta>) is.readObject();
@@ -384,7 +385,7 @@ public class Service{
 
     public void deleteAdministrador(String id) throws Exception {
         os.writeInt(Protocol.ADMINISTRADOR_DELETE);
-        os.writeObject(id);
+        os.writeUTF(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("ADMINISTRADOR NO EXISTE");
