@@ -77,7 +77,16 @@ public class Service{
     }
 
     public List<Paciente> getPacientes(){
-        return List.of();
+        try {
+            os.writeInt(Protocol.PACIENTE_GETALL);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+                return (List<Paciente>) is.readObject();
+            }
+            else return List.of();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     // ========================= MEDICOS ========================
@@ -133,7 +142,16 @@ public class Service{
     }
 
     public List<Medico> getMedicos(){
-        return List.of();
+        try {
+            os.writeInt(Protocol.MEDICO_GETALL);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+                return (List<Medico>) is.readObject();
+            }
+            else return List.of();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     // ====================== FARMACEUTAS =======================
@@ -189,7 +207,16 @@ public class Service{
     }
 
     public List<Farmaceuta> getFarmaceutas(){
-        return List.of();
+        try {
+            os.writeInt(Protocol.FARMACEUTA_GETALL);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+                return (List<Farmaceuta>) is.readObject();
+            }
+            else return List.of();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     // ====================== MEDICAMENTOS =======================
@@ -246,7 +273,16 @@ public class Service{
 
 
     public List<Medicamento> getMedicamentos(){
-        return List.of();
+        try {
+            os.writeInt(Protocol.MEDICAMENTO_GETALL);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+                return (List<Medicamento>) is.readObject();
+            }
+            else return List.of();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 
@@ -304,7 +340,16 @@ public class Service{
     }
 
     public List<Receta> getRecetas(){
-        return List.of();
+        try {
+            os.writeInt(Protocol.RECETA_GETALL);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+                return (List<Receta>) is.readObject();
+            }
+            else return List.of();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     // ====================== ADMINISTRADORES ======================

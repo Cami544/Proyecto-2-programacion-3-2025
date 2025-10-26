@@ -1,9 +1,9 @@
 package hospital.logic;
 
-
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Farmaceuta extends Usuario {
+public class Farmaceuta extends Usuario implements Serializable{
     private String clave;
 
     public Farmaceuta() {

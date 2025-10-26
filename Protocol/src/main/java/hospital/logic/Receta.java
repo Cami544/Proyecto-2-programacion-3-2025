@@ -1,11 +1,11 @@
 package hospital.logic;
-
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Receta {
+public class Receta implements Serializable{
     private int id;
     private String pacienteId;
     private String farmaceutaId;

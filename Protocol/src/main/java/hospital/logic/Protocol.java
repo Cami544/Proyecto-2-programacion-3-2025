@@ -65,4 +65,11 @@ public class Protocol {
 
     //-----------------------------------------------------
     public static final int DISCONNECT=99;
+
+
+    public static final int MEDICO_GETALL = 206;
+    public static final int FARMACEUTA_GETALL = 306;
+    public static final int MEDICAMENTO_GETALL = 406;
+    public static final int PACIENTE_GETALL = 106;
+    public static final int RECETA_GETALL = 506;
 }

@@ -97,6 +97,17 @@ public class Worker {
                         }
                         break;
 
+                    case Protocol.PACIENTE_GETALL:
+                        try {
+                            List<Paciente> le = service.getPacientes();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+
                         //------------------- CASE MEDICO ------------------
 
                     case Protocol.MEDICO_CREATE:
@@ -136,6 +147,17 @@ public class Worker {
                         try {
                             String nombre = is.readUTF();
                             List<Medico> le=service.searchMedicos(nombre);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+
+                    case Protocol.MEDICO_GETALL:
+                        try {
+                            List<Medico> le = service.getMedicos();
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                             os.writeObject(le);
                         } catch (Exception ex) {
@@ -190,6 +212,17 @@ public class Worker {
                         break;
 
 
+                    case Protocol.FARMACEUTA_GETALL:
+                        try {
+                            List<Farmaceuta> le = service.getFarmaceutas();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+
                     //-------------- CASE MEDICAMENTOS ---------------------
 
                     case Protocol.MEDICAMENTO_CREATE:
@@ -229,6 +262,16 @@ public class Worker {
                         try {
                             String nombre = is.readUTF();
                             List<Medicamento> le=service.searchMedicamentos(nombre);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    case Protocol.MEDICAMENTO_GETALL:
+                        try {
+                            List<Medicamento> le = service.getMedicamentos();
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                             os.writeObject(le);
                         } catch (Exception ex) {
@@ -281,6 +324,17 @@ public class Worker {
                         }
                         break;
 
+
+                    case Protocol.RECETA_GETALL:
+                        try {
+                            List<Receta> le = service.getRecetas();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
                     //-------------- CASE ADMINISTRADOR ---------------------
 
                     case Protocol.ADMINISTRADOR_CREATE:
@@ -317,11 +371,93 @@ public class Worker {
                         }
                         break;
 
+                    case Protocol.ADMINISTRADOR_GETALL:
+                        try {
+                            List<Administrador> le = service.getAllAdministradores();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    //-------------- CASE DETALLE RECETA ---------------------
+
+                    case Protocol.DETALLE_RECETA_CREATE:
+                        try {
+                            service.createDetalleReceta((DetalleReceta) is.readObject());
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    case Protocol.DETALLE_RECETA_UPDATE:
+                        try {
+                            service.updateDetalleReceta((DetalleReceta) is.readObject());
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    case Protocol.DETALLE_RECETA_DELETE:
+                        try {
+                            int id = is.readInt();
+                            service.deleteDetalleReceta(id);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    case Protocol.DETALLE_RECETA_GETXRECETA:
+                        try {
+                            int recetaId = is.readInt();
+                            List<DetalleReceta> le = service.getDetallesPorReceta(recetaId);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
+
+                    case Protocol.DETALLE_RECETA_GETALL:
+                        try {
+                            List<DetalleReceta> le = service.getAllDetallesReceta();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(le);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
 
 
+                    //-------------- CASE AUTENTICACIÓN ---------------------
 
+                    case Protocol.AUTHENTICATE:
+                        try {
+                            String id = is.readUTF();
+                            String clave = is.readUTF();
+                            Usuario usuario = service.authenticate(id, clave);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(usuario);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
 
-
+                    case Protocol.CHANGE_PASSWORD:
+                        try {
+                            String id = is.readUTF();
+                            String claveActual = is.readUTF();
+                            String claveNueva = is.readUTF();
+                            service.cambiarClave(id, claveActual, claveNueva);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                        }
+                        break;
 
                     case Protocol.DISCONNECT:
                         stop();

@@ -3,7 +3,7 @@ package hospital.logic;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Administrador extends Usuario {
+public class Administrador extends Usuario implements Serializable{
     private String clave;
 
     public Administrador() {
