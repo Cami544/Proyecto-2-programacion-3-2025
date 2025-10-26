@@ -1,6 +1,13 @@
 package hospital.logic;
 
 import hospital.data.*;
+import hospital.data.PacienteDao;
+import hospital.data.MedicoDao;
+import hospital.data.AdministradorDao;
+import hospital.data.DetalleRecetaDao;
+import hospital.data.MedicamentoDao;
+import hospital.data.RecetaDao;
+import hospital.data.FarmaceutaDao;
 
 import java.time.LocalDate;
 import java.util.List;

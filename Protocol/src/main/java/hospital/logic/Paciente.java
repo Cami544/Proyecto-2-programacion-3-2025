@@ -1,7 +1,6 @@
 package hospital.logic;
 import java.time.LocalDate;
 
-
 public class Paciente extends Usuario {
 
     private LocalDate fechaNacimiento;
