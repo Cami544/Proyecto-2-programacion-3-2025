@@ -26,6 +26,8 @@ public class Controller {
         try {
             Paciente paciente = Service.instance().readPaciente(criterio.trim());
             model.setPacienteSeleccionado(paciente);
+            System.out.println("Paciente seleccionado en modelo: " + model.getPacienteSeleccionado().getId());
+
             model.nuevaReceta();
             return;
         } catch (Exception e) {
@@ -43,6 +45,7 @@ public class Controller {
         }
 
         model.setPacienteSeleccionado(pacienteSeleccionado);
+        System.out.println("Paciente seleccionado en modelo: " + model.getPacienteSeleccionado().getId());
         model.nuevaReceta();
     }
 
@@ -150,9 +153,12 @@ public class Controller {
 
         Receta receta = model.getRecetaActual();
         if (receta == null) {
+            System.out.println("Paciente seleccionado en modelo: " + model.getPacienteSeleccionado().getId());
+
             model.nuevaReceta();
             receta = model.getRecetaActual();
         }
+        System.out.println("Paciente seleccionado en modelo: " + model.getPacienteSeleccionado().getId());
 
         receta.setDetalles(new ArrayList<>(model.getDetallesReceta()));
 
@@ -162,6 +168,9 @@ public class Controller {
         System.out.println("  - Fecha confección (hoy): " + LocalDate.now());
         System.out.println("  - Fecha retiro seleccionada: " + model.getFechaRetiro());
         System.out.println("  - Medicamentos: " + receta.getDetalles().size());
+
+        System.out.println("DEBUG >> Paciente ID antes de enviar receta: " + receta.getPacienteId());
+        System.out.println("DEBUG >> Paciente en modelo: " + model.getPacienteSeleccionado());
 
         Service.instance().createReceta(receta, model.getFechaRetiro());
 

@@ -95,6 +95,7 @@ public class Service{
         os.writeInt(Protocol.MEDICO_CREATE);
         os.writeObject(e);
         os.flush();
+        System.out.println("Medico en frontend antes de enviar: " + e.getNombre() + e.getId());
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("MEDICO DUPLICADO");
     }
@@ -272,7 +273,6 @@ public class Service{
         }
     }
 
-
     public List<Medicamento> getMedicamentos(){
         try {
             os.writeInt(Protocol.MEDICAMENTO_GETALL);
@@ -286,7 +286,6 @@ public class Service{
         }
     }
 
-
     // ====================== RECETAS =======================
 
     public void createReceta(Receta receta, LocalDate fechaRetiro) throws Exception {
@@ -294,6 +293,7 @@ public class Service{
         os.writeObject(receta);
         os.writeObject(fechaRetiro);
         os.flush();
+        System.out.println("Paciente en frontend antes de enviar: " + receta.getPacienteId());
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("RECETA DUPLICADO");
     }
@@ -434,9 +434,6 @@ public class Service{
         } else throw new Exception("USUARIO NO EXISTE");
     }
 
-
-
-
     // ====================== DETALLES DE RECETA ======================
 
     public void createDetalleReceta(DetalleReceta e) throws Exception {
@@ -482,10 +479,6 @@ public class Service{
 
         return List.of();
     }
-
-
-
-
 
     private void disconnect() throws Exception {
         os.writeInt(Protocol.DISCONNECT);

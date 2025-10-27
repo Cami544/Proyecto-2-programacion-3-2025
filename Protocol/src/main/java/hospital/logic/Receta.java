@@ -31,7 +31,7 @@ public class Receta implements Serializable{
         this.farmaceutaId = "Sin asignar";
     }
 
-    public Receta( String pacienteid, LocalDate fecha) {
+    public Receta( String pacienteId, LocalDate fecha) {
         this.pacienteId = pacienteId;
         this.fecha = fecha;
         this.fechaRetiro = fecha.plusDays(1);

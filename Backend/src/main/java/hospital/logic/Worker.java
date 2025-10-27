@@ -112,7 +112,7 @@ public class Worker {
 
                     case Protocol.MEDICO_CREATE:
                         try {
-                            service.createPaciente((Paciente) is.readObject());
+                            service.createMedico((Medico) is.readObject());
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
                         break;
