@@ -2,7 +2,7 @@ package hospital.presentation.Paciente;
 
 import hospital.logic.Paciente;
 import hospital.logic.Service;
-import hospital.presentation.Refresher;
+//import hospital.presentation.Refresher;
 import hospital.presentation.ThreadListener;
 import hospital.Application;
 

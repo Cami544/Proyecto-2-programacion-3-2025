@@ -113,7 +113,7 @@ public class View implements PropertyChangeListener {
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(panel,
                                 ex.getMessage(),
-                                "Error",
+                                "Farmaceuta siendo utilizado en recetas",
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }

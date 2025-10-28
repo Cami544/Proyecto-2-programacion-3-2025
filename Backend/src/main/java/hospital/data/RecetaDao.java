@@ -212,8 +212,8 @@ public class RecetaDao {
         return resultados;
     }
 
-    public List<Receta> filterByPaciente(Paciente paciente) throws Exception {
-        String pacienteId = paciente.getId();
+    public List<Receta> filterByPaciente(String paciente) throws Exception {
+        String pacienteId = paciente;
         List<Receta> lista = new ArrayList<>();
         String sql = "SELECT * FROM Receta WHERE pacienteId=? ORDER BY fecha DESC";
         try (PreparedStatement stmt = db.prepareStatement(sql)) {

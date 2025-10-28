@@ -214,19 +214,19 @@ public class Service {
         System.out.println("Receta creada exitosamente con ID: " + receta.getId());
     }
 
-    public Receta readReceta(Receta r) throws Exception {
-        return recetaDao.read(r.getId());
+    public Receta readReceta(String r) throws Exception {
+        return recetaDao.read(Integer.parseInt(r));
     }
 
     public void updateReceta(Receta r) throws Exception {
         recetaDao.update(r);
     }
 
-    public void deleteReceta(Receta r) throws Exception {
-        recetaDao.delete(r.getId());
+    public void deleteReceta(String r) throws Exception {
+        recetaDao.delete(Integer.parseInt(r));
     }
 
-    public List<Receta> searchRecetasByPaciente(Paciente paciente) throws Exception {
+    public List<Receta> searchRecetasByPaciente(String paciente) throws Exception {
         return recetaDao.filterByPaciente(paciente);
     }
 

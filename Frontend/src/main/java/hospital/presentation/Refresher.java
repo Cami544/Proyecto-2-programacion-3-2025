@@ -1,7 +1,7 @@
 package hospital.presentation;
 
 import javax.swing.*;
-
+/*
 public class Refresher {
     ThreadListener listener;
 
@@ -40,3 +40,4 @@ public class Refresher {
         );
     }
 }
+*/

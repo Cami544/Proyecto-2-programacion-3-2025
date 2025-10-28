@@ -37,7 +37,7 @@ CREATE TABLE `administrador` (
 
 LOCK TABLES `administrador` WRITE;
 /*!40000 ALTER TABLE `administrador` DISABLE KEYS */;
-INSERT INTO `administrador` VALUES ('ad','ad','ad','ad');
+INSERT INTO `administrador` VALUES ('a','a','a','segundo'),('ad','ad','ad','primero');
 /*!40000 ALTER TABLE `administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,7 +59,7 @@ CREATE TABLE `detallereceta` (
   KEY `detallereceta_ibfk_1_idx` (`recetaId`),
   CONSTRAINT `detallereceta_ibfk_1` FOREIGN KEY (`recetaId`) REFERENCES `receta` (`id`),
   CONSTRAINT `detallereceta_ibfk_2` FOREIGN KEY (`medicamentoCodigo`) REFERENCES `medicamento` (`codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +68,7 @@ CREATE TABLE `detallereceta` (
 
 LOCK TABLES `detallereceta` WRITE;
 /*!40000 ALTER TABLE `detallereceta` DISABLE KEYS */;
-INSERT INTO `detallereceta` VALUES (1,1,'L86',2,'HT');
+INSERT INTO `detallereceta` VALUES (1,1,'L86',2,'HT'),(11,10,'K003',2,'fh'),(12,10,'K003',2,'fh'),(13,11,'K003',5,'htrh'),(14,11,'K003',5,'htrh'),(15,12,'182300',13,'b'),(16,12,'182300',13,'b'),(17,13,'K003',2,'y'),(18,13,'K003',2,'y'),(19,14,'182300',3,'hu'),(20,14,'182300',3,'hu'),(21,15,'182300',5,'i'),(22,15,'L86',58,'o'),(23,15,'182300',5,'i'),(24,15,'L86',58,'o'),(25,16,'182300',25,'6h'),(26,17,'182300',3,'kiu'),(27,18,'L86',25,'hr'),(28,19,'K003',1,'k'),(29,20,'863',5,'l'),(30,21,'K003',2,'p');
 /*!40000 ALTER TABLE `detallereceta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -94,7 +94,7 @@ CREATE TABLE `farmaceuta` (
 
 LOCK TABLES `farmaceuta` WRITE;
 /*!40000 ALTER TABLE `farmaceuta` DISABLE KEYS */;
-INSERT INTO `farmaceuta` VALUES ('1253','Valentina','1253','FAR'),('8346l','Camila','8346l','FAR'),('862','Hern','862','FAR'),('F001','Carlos Jiménez','farm2025','FAR');
+INSERT INTO `farmaceuta` VALUES ('1253','Valentina','1253','FAR'),('582','Nahomi','582','FAR'),('8346l','Camila','8346l','FAR'),('8346l77','Camila','8346l77','FAR'),('8346l88','Camila','8346l88','FAR'),('862','Hern','862','FAR'),('F001','Carlos Jiménez','farm2025','FAR');
 /*!40000 ALTER TABLE `farmaceuta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,7 +119,7 @@ CREATE TABLE `medicamento` (
 
 LOCK TABLES `medicamento` WRITE;
 /*!40000 ALTER TABLE `medicamento` DISABLE KEYS */;
-INSERT INTO `medicamento` VALUES ('182300','Clot','Pastilla'),('K003','Acetaminofen','Pastilla'),('L86','Loratadina','Pastilla');
+INSERT INTO `medicamento` VALUES ('182300','Clot','Pastilla'),('863','Crema de rosas','Crema'),('K003','Acetaminofen','Pastilla'),('L86','Loratadina','Pastilla');
 /*!40000 ALTER TABLE `medicamento` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,7 +146,7 @@ CREATE TABLE `medico` (
 
 LOCK TABLES `medico` WRITE;
 /*!40000 ALTER TABLE `medico` DISABLE KEYS */;
-INSERT INTO `medico` VALUES ('123','Gregory','123','General','MED'),('M001','Dr. Ana Rojas','clave123','Pediatría','MED');
+INSERT INTO `medico` VALUES ('123','Gregory','123','General','MED'),('45','Julia','45','General','MED'),('M001','Dr. Ana Rojass','clave123','Pediatría','MED');
 /*!40000 ALTER TABLE `medico` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +172,7 @@ CREATE TABLE `paciente` (
 
 LOCK TABLES `paciente` WRITE;
 /*!40000 ALTER TABLE `paciente` DISABLE KEYS */;
-INSERT INTO `paciente` VALUES ('285','Maria','2025-10-10','892'),('3200','Victor','2023-10-05','203'),('856','Fabricio','2025-10-10','8561');
+INSERT INTO `paciente` VALUES ('285','Maria Bolaños','2025-10-10','892'),('3200','Victor','2023-10-05','203'),('56','Marta','2005-03-10','4589'),('856','Fabricio','2025-10-10','8561');
 /*!40000 ALTER TABLE `paciente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -195,7 +195,7 @@ CREATE TABLE `receta` (
   KEY `receta_ibfk_1` (`pacienteId`),
   CONSTRAINT `receta_ibfk_1` FOREIGN KEY (`pacienteId`) REFERENCES `paciente` (`id`),
   CONSTRAINT `receta_ibfk_2` FOREIGN KEY (`farmaceutaId`) REFERENCES `farmaceuta` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -204,7 +204,7 @@ CREATE TABLE `receta` (
 
 LOCK TABLES `receta` WRITE;
 /*!40000 ALTER TABLE `receta` DISABLE KEYS */;
-INSERT INTO `receta` VALUES (1,'285','1253','2025-10-18','2025-10-19','Confeccionada');
+INSERT INTO `receta` VALUES (1,'285','1253','2025-10-18','2025-10-19','Entregada'),(10,'3200','8346l','2025-10-18','2025-10-19','Confeccionada'),(11,'285','862','2025-10-18','2025-10-19','Lista'),(12,'3200','1253','2025-10-18','2025-10-19','Entregada'),(13,'3200','F001','2025-10-18','2025-10-19','Confeccionada'),(14,'3200','1253','2025-10-18','2025-10-19','En proceso'),(15,'285','F001','2025-10-18','2025-10-19','Confeccionada'),(16,'285','862','2025-10-18','2025-10-19','Confeccionada'),(17,'3200',NULL,'2025-10-20','2025-11-22','Confeccionada'),(18,'285',NULL,'2025-10-20','2025-12-19','Confeccionada'),(19,'856',NULL,'2025-10-26','2025-10-27','Confeccionada'),(20,'856',NULL,'2025-10-26','2025-10-27','Confeccionada'),(21,'285',NULL,'2025-10-27','2025-10-28','Confeccionada');
 /*!40000 ALTER TABLE `receta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,4 +242,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-18 14:43:26
+-- Dump completed on 2025-10-27 19:13:07

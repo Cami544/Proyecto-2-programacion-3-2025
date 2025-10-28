@@ -15,12 +15,23 @@ public class Service{
     Socket s;
     ObjectOutputStream os;
     ObjectInputStream is;
+
+    String sid; // Session Id
+
     public Service() {
         try {
             s = new Socket(Protocol.SERVER, Protocol.PORT);
             os = new ObjectOutputStream(s.getOutputStream());
             is = new ObjectInputStream(s.getInputStream());
-        } catch (Exception e) { System.exit(-1);}
+
+            os.writeInt(Protocol.SYNC);
+            os.flush();
+            sid = (String) is.readObject();
+        } catch (Exception e) {System.exit(-1);}
+    }
+
+    public String getSid() {
+        return sid;
     }
 
     // ========================= PACIENTES ======================
@@ -29,7 +40,9 @@ public class Service{
         os.writeInt(Protocol.PACIENTE_CREATE);
         os.writeObject(e);
         os.flush();
-        if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
+        if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+            System.out.println("Paciente creado exitosamente");
+        }
         else throw new Exception("PACIENTE DUPLICADO");
     }
 
@@ -39,7 +52,6 @@ public class Service{
         os.flush();
 
         int errorCode = is.readInt();
-
         if (errorCode == Protocol.ERROR_NO_ERROR){
             return (Paciente) is.readObject();
         }
@@ -177,13 +189,26 @@ public class Service{
         }
         else throw new Exception("FARMACEUTA NO EXISTE");
     }
-
+/*
     public void updateFarmaceuta(Farmaceuta e) throws Exception {
         os.writeInt(Protocol.FARMACEUTA_UPDATE);
         os.writeObject(e);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("FARMACEUTA NO EXISTE");
+    }
+    */
+    public void updateFarmaceuta(Farmaceuta f) throws Exception {
+        System.out.println("[Service] Enviando FARMACEUTA_UPDATE...");
+        os.writeInt(Protocol.FARMACEUTA_UPDATE);
+        os.writeObject(f);
+        os.flush();
+        System.out.println("[Service] Farmaceuta enviado id=" + f.getId() + ", nombre=" + f.getNombre());
+
+        int response = is.readInt();
+        System.out.println("[Service] Respuesta backend: " + response);
+        if (response != Protocol.ERROR_NO_ERROR)
+            throw new Exception("Error actualizando farmaceuta");
     }
 
     public void deleteFarmaceuta(String id) throws Exception {
@@ -309,14 +334,26 @@ public class Service{
         }
         else throw new Exception("RECETA NO EXISTE");
     }
-
+/*
     public void updateReceta(Receta e) throws Exception {
         os.writeInt(Protocol.RECETA_UPDATE);
         os.writeObject(e);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
         else throw new Exception("RECETA NO EXISTE");
-    }
+    }*/
+public void updateReceta(Receta r) throws Exception {
+    System.out.println("[Service] Enviando RECETA_UPDATE...");
+    os.writeInt(Protocol.RECETA_UPDATE);
+    os.writeObject(r);
+    os.flush();
+    System.out.println("[Service] Receta enviada id=" + r.getId() + ", estado=" + r.getEstadoReceta());
+
+    int response = is.readInt(); // lee confirmación
+    System.out.println("[Service] Respuesta backend: " + response);
+    if (response != 200) throw new Exception("Error actualizando receta");
+}
+
 
     public void deleteReceta(String id) throws Exception {
         os.writeInt(Protocol.RECETA_DELETE);
@@ -340,16 +377,16 @@ public class Service{
         }
     }
 
-    public List<Receta> getRecetas(){
+    public List<Receta> getRecetas()  throws Exception{
         try {
             os.writeInt(Protocol.RECETA_GETALL);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<Receta>) is.readObject();
             }
-            else return List.of();
+            else throw new Exception("Error al obtener recetas");
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new Exception("Error al obtener recetas");
         }
     }
 
@@ -444,27 +481,39 @@ public class Service{
         } else throw new Exception("ADMINISTRADOR DUPLICADO");
     }
 
-
+/*
     public void updateDetalleReceta(DetalleReceta e) throws Exception {
         os.writeInt(Protocol.DETALLE_RECETA_UPDATE);
         os.writeObject(e);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-        else throw new Exception("ADMINISTRADOR NO EXISTE");
+        else throw new Exception("UPDATE DETALLE RECETA NO EXISTE");
     }
+*/
+public void updateDetalleReceta(DetalleReceta d) throws Exception {
+    System.out.println("[Service] Enviando DETALLERECETA_UPDATE...");
+    os.writeInt(Protocol.DETALLE_RECETA_UPDATE);
+    os.writeObject(d);
+    os.flush();
+    System.out.println("[Service] Detalle enviado id=" + d.getId() + ", recetaId=" + d.getRecetaId());
 
-    public void deleteDetalleReceta(String id) throws Exception {
+    int response = is.readInt();
+    System.out.println("[Service] Respuesta backend: " + response);
+    if (response != 200) throw new Exception("Error actualizando detalle receta");
+}
+
+    public void deleteDetalleReceta(int id) throws Exception {
         os.writeInt(Protocol.DETALLE_RECETA_DELETE);
-        os.writeObject(id);
+        os.writeInt(id);
         os.flush();
         if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-        else throw new Exception("ADMINISTRADOR NO EXISTE");
+        else throw new Exception("DETALLE RECETA NO EXISTE");
     }
 
-    public List<DetalleReceta> getDetallesPorReceta(String recetaId) {
+    public List<DetalleReceta> getDetallesPorReceta(int recetaId) {
         try {
             os.writeInt(Protocol.DETALLE_RECETA_GETXRECETA);
-            os.writeObject(recetaId);
+            os.writeInt(recetaId);
             os.flush();
             if (is.readInt() == Protocol.ERROR_NO_ERROR) {
                 return (List<DetalleReceta>) is.readObject();

@@ -75,9 +75,14 @@ public class FarmaceutaDao {
                 throw new Exception("No se encontró un farmaceuta con ID: " + id);
             }
         } catch (SQLException ex) {
-            throw new Exception("Error al eliminar farmaceuta: " + ex.getMessage(), ex);
+            if (ex.getMessage().contains("a foreign key constraint fails")) {
+                throw new Exception("No se puede eliminar el farmaceuta porque tiene recetas asociadas.");
+            } else {
+                throw new Exception("Error al eliminar farmaceuta: " + ex.getMessage(), ex);
+            }
         }
     }
+
 
     public List<Farmaceuta> findAll() throws Exception {
         List<Farmaceuta> lista = new ArrayList<>();

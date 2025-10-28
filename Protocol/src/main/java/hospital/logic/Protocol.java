@@ -57,6 +57,11 @@ public class Protocol {
     public static final int AUTHENTICATE = 801;
     public static final int CHANGE_PASSWORD = 802;
 
+    //-----------NOTIFICACIONES ASINCRONICAS---------------
+
+    public static final int SYNC           = 900;  // solicita Session Id
+    public static final int ASYNC          = 901;  // registra socket asíncrono
+    public static final int DELIVER_MESSAGE = 902; // notificación
 
     //------------------ ERRORES --------------------------
 
