@@ -651,6 +651,25 @@ public class Worker {
                             os.flush();
                         }
                         break;
+
+
+
+                    case Protocol.DELIVER_MESSAGE:
+                        try {
+                            String message = (String) is.readObject();
+                            System.out.println("Mensaje recibido para broadcast: " + message);
+                            srv.deliver_message(this, message);
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            System.err.println("Error procesando mensaje: " + ex.getMessage());
+                        }
+                        finally {
+                            os.flush();
+                        }
+                        break;
+
+
                     case Protocol.DISCONNECT:
                         stop();
                         srv.remove(this);

@@ -536,6 +536,13 @@ public void updateDetalleReceta(DetalleReceta d) throws Exception {
         s.close();
     }
 
+    public void enviarMensaje(String mensaje) throws Exception {
+        os.writeInt(Protocol.DELIVER_MESSAGE);
+        os.writeObject(mensaje);
+        os.flush();
+        System.out.println("Mensaje enviado: " + mensaje);
+    }
+
     public void stop() {
         try {
             disconnect();

@@ -1,8 +1,6 @@
 package hospital;
 
-
 import hospital.logic.Sesion;
-
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,9 +13,9 @@ public class Application {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            initializeControllers(); // ← Moverlo aquí dentro del try
+            initializeControllers();
         } catch (Exception ex) {
-            ex.printStackTrace(); // Para ver el error si ocurre
+            ex.printStackTrace();
         }
 
         window = new JFrame();
@@ -28,8 +26,6 @@ public class Application {
                 System.exit(0);
             }
         });
-
-
 
         window.setSize(1350, 600);
         window.setResizable(true);
@@ -50,7 +46,12 @@ public class Application {
 
     public static void doRun() {
         JTabbedPane tabbedPane = new JTabbedPane();
-        window.setContentPane(tabbedPane);
+
+        // Crear panel principal con BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        mainPanel.add(usuarioView.getPanel(), BorderLayout.EAST);
+        window.setContentPane(mainPanel);
 
         createMenuBar();
 
@@ -60,7 +61,6 @@ public class Application {
 
         switch (rol) {
             case "ADM":
-
                 tabbedPane.addTab("Medicos", medicosIcon, medicoView.getPanel());
                 tabbedPane.addTab("Farmaceutas", farmaceutasIcon, farmaceutaView.getPanel());
                 tabbedPane.addTab("Pacientes", pacientesIcon, pacienteView.getPanel());
@@ -95,6 +95,18 @@ public class Application {
                 break;
         }
 
+        // Iniciar SocketListener para notificaciones asíncronas
+        try {
+            String sid = hospital.logic.Service.instance().getSid();
+            socketListener = new hospital.presentation.despacho.SocketListener(usuarioView, sid);
+            socketListener.start();
+            System.out.println("SocketListener iniciado con SID: " + sid);
+
+            hospital.logic.Service.instance().enviarMensaje("LOGIN:" + Sesion.getUsuario().getId());
+        } catch (Exception ex) {
+            System.err.println("Error iniciando SocketListener: " + ex.getMessage());
+        }
+
         window.setVisible(true);
     }
 
@@ -105,7 +117,6 @@ public class Application {
 
         window.setJMenuBar(menuBar);
     }
-
 
     private static JMenu getJMenu() {
         JMenu usuarioMenu = new JMenu("Usuario");
@@ -118,6 +129,18 @@ public class Application {
                     JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                // Notificar logout y detener SocketListener
+                try {
+                    if (Sesion.getUsuario() != null) {
+                        hospital.logic.Service.instance().enviarMensaje("LOGOUT:" + Sesion.getUsuario().getId());
+                    }
+                    if (socketListener != null) {
+                        socketListener.stop();
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Error en logout: " + ex.getMessage());
+                }
+
                 Sesion.logout();
                 window.dispose();
 
@@ -129,7 +152,7 @@ public class Application {
                         System.exit(0);
                     }
                 });
-                window.setSize(1200, 800);
+                window.setSize(1350, 600);
                 window.setResizable(true);
                 window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
                 window.setTitle("HOSPITAL - Sistema de Prescripcion y Despacho");
@@ -138,7 +161,6 @@ public class Application {
                 doLogin();
             }
         });
-
 
         usuarioMenu.add(logoutItem);
         return usuarioMenu;
@@ -191,6 +213,11 @@ public class Application {
         hospital.presentation.Despacho.Model despachoModel = new hospital.presentation.Despacho.Model();
         despachoView = new hospital.presentation.Despacho.View();
         despachoController = new hospital.presentation.Despacho.Controller(despachoView, despachoModel);
+
+        // Inicializar módulo de Usuarios
+        hospital.presentation.Usuario.Model usuarioModel = new hospital.presentation.Usuario.Model();
+        usuarioView = new hospital.presentation.Usuario.View();
+        usuarioController = new hospital.presentation.Usuario.Controller(usuarioView, usuarioModel);
     }
 
     public static hospital.presentation.Paciente.Controller pacientesControllers;
@@ -201,6 +228,7 @@ public class Application {
     public static hospital.presentation.Historico.Controller historicoController;
     public static hospital.presentation.Preescribir.Controller preescribirController;
     public static hospital.presentation.Despacho.Controller despachoController;
+    public static hospital.presentation.Usuario.Controller usuarioController;
 
     private static hospital.presentation.Paciente.View pacienteView;
     private static hospital.presentation.Medico.View medicoView;
@@ -210,6 +238,8 @@ public class Application {
     private static hospital.presentation.Historico.View historicoView;
     private static hospital.presentation.Preescribir.View preescribirView;
     private static hospital.presentation.Despacho.View despachoView;
+    private static hospital.presentation.Usuario.View usuarioView;
+    private static hospital.presentation.despacho.SocketListener socketListener;
 
     private static ImageIcon medicosIcon = new ImageIcon(Application.class.getResource("/icons/icons8-care-16.png"));
     private static ImageIcon farmaceutasIcon = new ImageIcon(Application.class.getResource("/icons/icons8-pharmacist-16.png"));
@@ -226,13 +256,3 @@ public class Application {
 
     public static final Color BACKGROUND_ERROR = new Color(255, 102, 102);
 }
-    /*
-    
-    Grupo de las 8am Progra 3
-
-    Integrantes:
-    Camila Fallas Jiménez  305510256
-    Hermann Hidalgo Araya  118400891
-    Jeancarlo Blanco Mora  703110431
-
-    */
