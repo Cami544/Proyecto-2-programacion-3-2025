@@ -1,4 +1,4 @@
-package hospital.presentation.despacho;
+package hospital.presentation;
 
 import hospital.logic.Protocol;
 import hospital.presentation.ThreadListener;

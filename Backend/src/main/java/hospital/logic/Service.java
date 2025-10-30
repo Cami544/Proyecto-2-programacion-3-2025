@@ -30,7 +30,7 @@ public class Service {
     private final RecetaDao recetaDao;
     private final DetalleRecetaDao detalleRecetaDao;
 
-    private Service() {
+    public Service() {
         pacienteDao = new PacienteDao();
         medicoDao = new MedicoDao();
         farmaceutaDao = new FarmaceutaDao();

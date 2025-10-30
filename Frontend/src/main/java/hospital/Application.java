@@ -98,7 +98,7 @@ public class Application {
         // Iniciar SocketListener para notificaciones asíncronas
         try {
             String sid = hospital.logic.Service.instance().getSid();
-            socketListener = new hospital.presentation.despacho.SocketListener(usuarioView, sid);
+            socketListener = new hospital.presentation.SocketListener(usuarioView, sid);
             socketListener.start();
             System.out.println("SocketListener iniciado con SID: " + sid);
 
@@ -239,7 +239,7 @@ public class Application {
     private static hospital.presentation.Preescribir.View preescribirView;
     private static hospital.presentation.Despacho.View despachoView;
     private static hospital.presentation.Usuario.View usuarioView;
-    private static hospital.presentation.despacho.SocketListener socketListener;
+    private static hospital.presentation.SocketListener socketListener;
 
     private static ImageIcon medicosIcon = new ImageIcon(Application.class.getResource("/icons/icons8-care-16.png"));
     private static ImageIcon farmaceutasIcon = new ImageIcon(Application.class.getResource("/icons/icons8-pharmacist-16.png"));

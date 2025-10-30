@@ -21,7 +21,7 @@ public class Server {
         try {
             ss = new ServerSocket(Protocol.PORT);
             workers = Collections.synchronizedList(new ArrayList<Worker>());
-            service = Service.instance();
+            service = new Service();
             System.out.println("Servidor iniciado en puerto " + Protocol.PORT + "...");
         } catch (IOException ex) {
             System.out.println("Error iniciando servidor: " + ex.getMessage());
@@ -34,30 +34,33 @@ public class Server {
                 Socket s = ss.accept();
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
-
+                String sid;
                 int tipoConexion = is.readInt(); // Saber si es SYNC o ASYNC
 
                 switch (tipoConexion) {
                     case Protocol.SYNC:
-                        String sid = UUID.randomUUID().toString();    // Crear sesión única para el cliente
+                      //  sid = UUID.randomUUID().toString();    // Crear sesión única para el cliente
+                        sid = s.getRemoteSocketAddress().toString();
                         Worker worker = new Worker(this, s, os, is, sid, service);
                         workers.add(worker);
+                        worker.start();
                         System.out.println("Nueva conexión SYNC. SID: " + sid);
                         os.writeObject(sid);
                         os.flush();
-                        worker.start();
                         break;
 
                     case Protocol.ASYNC:
-                        String sidAsync = (String) is.readObject(); // Registrar socket asíncrono de un worker existente
-                        Worker existing = getWorkerBySid(sidAsync);
+                        sid= (String) is.readObject(); // Registrar socket asíncrono de un worker existente
+                        join(s, os, is, sid);
+                        /*
+                        Worker existing = getWorkerBySid(sid);
                         if (existing != null) {
                             existing.setAs(s, os, is);
-                            System.out.println("Conexión ASYNC registrada para SID: " + sidAsync);
+                            System.out.println("Conexión ASYNC registrada para SID: " + sid);
                         } else {
-                            System.out.println("No se encontró worker para SID: " + sidAsync);
+                            System.out.println("No se encontró worker para SID: " + sid);
                             s.close();
-                        }
+                        }*/
                         break;
                 }
             } catch (Exception ex) {
@@ -85,14 +88,17 @@ public class Server {
         for(Worker w:workers){
             if(w.sid.equals(sid)){
                 w.setAs(as,aos,ais);
+                System.out.println("[Server] Canal asíncrono asociado a " + sid);
                 break;
             }
         }
     }
 
-    public void deliver_message(Worker from, String message){
-        for(Worker w:workers){
-            if (w!=from) w.deliver_message(message);
+    public  synchronized void deliver_message(Worker from, String message){
+        for(Worker w:workers) {
+            if (w != from && w.isAsyncReady()) {
+                w. deliverMessage(message);
+            }
         }
     }
 

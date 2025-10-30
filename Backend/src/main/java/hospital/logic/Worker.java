@@ -65,19 +65,20 @@ public class Worker {
         System.out.println("Error cerrando conexiones Worker[" + sid + "]: " + e.getMessage());
         }
     }
+    public boolean isAsyncReady() { return aos != null;}
 
-    public synchronized void deliver_message(String message){
-        if (aos != null){
+    public synchronized void deliverMessage(String message) {
+        if (aos != null) {
             try {
                 aos.writeInt(Protocol.DELIVER_MESSAGE);
                 aos.writeObject(message);
                 aos.flush();
-                System.out.println("Mensaje enviado a SID[" + sid + "]: " + message);
-            } catch (Exception e){
-                System.out.println("Error enviando mensaje a SID[" + sid + "]: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("[Worker][ERROR] En deliverMessage: " + e);
             }
         }
     }
+
 
     public void listen(){
         int method;
@@ -108,7 +109,9 @@ public class Worker {
                             service.createPaciente(p);
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                             srv.deliver_message(this, "Paciente creado: " + p.getNombre());
-                        } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace(); }
                         finally {
                             os.flush();
                         }
@@ -121,6 +124,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -132,6 +136,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -144,6 +149,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -157,6 +163,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -169,6 +176,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -182,7 +190,10 @@ public class Worker {
                         try {
                             service.createMedico((Medico) is.readObject());
                             os.writeInt(Protocol.ERROR_NO_ERROR);
-                        } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
+                        }
                         finally {
                             os.flush();
                         }
@@ -195,6 +206,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -206,6 +218,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -218,6 +231,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -231,6 +245,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -243,6 +258,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -255,7 +271,10 @@ public class Worker {
                         try {
                             service.createFarmaceuta((Farmaceuta) is.readObject());
                             os.writeInt(Protocol.ERROR_NO_ERROR);
-                        } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
+                        }
                         finally {
                             os.flush();
                         }
@@ -268,6 +287,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -290,7 +310,7 @@ public class Worker {
                             return; // salir del listener
                         } catch (Exception ex) {
                             System.err.println("[Worker][ERROR] Error actualizando Farmaceuta: " + ex);
-                            try { os.writeInt(Protocol.ERROR_ERROR); } catch (Exception ignore) {}
+                            ex.printStackTrace();
                         } finally {
                             try { os.flush(); } catch (IOException ignore) {}
                         }
@@ -306,6 +326,7 @@ public class Worker {
                         } catch (Exception ex) {
                             System.out.println("Error eliminando farmaceuta: " + ex.getMessage());
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         } finally {
                             os.flush();
                         }
@@ -319,6 +340,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -331,6 +353,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -344,7 +367,10 @@ public class Worker {
                         try {
                             service.createMedicamento((Medicamento) is.readObject());
                             os.writeInt(Protocol.ERROR_NO_ERROR);
-                        } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
+                        }
                         finally {
                             os.flush();
                         }
@@ -357,6 +383,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -368,6 +395,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -380,6 +408,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -393,6 +422,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -405,6 +435,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -421,7 +452,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
-                            os.writeUTF(ex.getMessage());
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -435,6 +466,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -442,28 +474,26 @@ public class Worker {
                         break;
                     case Protocol.RECETA_UPDATE:
                         try {
-                            System.out.println("[Worker] Iniciando RECETA_UPDATE");
-                            Receta r = (Receta) is.readObject();
-                            service.updateReceta(r);
-                            System.out.println("[Worker] Receta recibida id=" + r.getId() + ", estado=" + r.getEstadoReceta());
-
+                            Receta receta = (Receta) is.readObject();
+                            service.updateReceta(receta);
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
+                            System.err.println("[Worker][ERROR][UPDATE_RECETA] " + ex);
                             os.writeInt(Protocol.ERROR_ERROR);
-                        }
-                        finally {
-                            os.flush();     System.out.println("[Worker] Confirmación enviada (200)");
+                            ex.printStackTrace();
+                        } finally {
+                            os.flush();
                         }
                         break;
                     case Protocol.RECETA_DELETE:
                         try {
-                            String id = is.readUTF();
+                            String id = (String) is.readObject();
                             service.deleteReceta(id);
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
-                        }
-                        finally {
+                            ex.printStackTrace();
+                        } finally {
                             os.flush();
                         }
                         break;
@@ -475,6 +505,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -482,11 +513,12 @@ public class Worker {
                         break;
                     case Protocol.RECETA_GETALL:
                         try {
-                            List<Receta> le = service.getRecetas();
+                            List<Receta> recetas = service.getRecetas();
                             os.writeInt(Protocol.ERROR_NO_ERROR);
-                            os.writeObject(le);
+                            os.writeObject(recetas);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -499,7 +531,10 @@ public class Worker {
                         try {
                             service.createAdministrador((Administrador) is.readObject());
                             os.writeInt(Protocol.ERROR_NO_ERROR);
-                        } catch (Exception ex) { os.writeInt(Protocol.ERROR_ERROR); }
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
+                        }
                         finally {
                             os.flush();
                         }
@@ -512,6 +547,7 @@ public class Worker {
                             os.writeObject(e);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -523,6 +559,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -535,6 +572,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -547,6 +585,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -564,11 +603,12 @@ public class Worker {
 
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
-
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
-                            os.flush();     System.out.println("[Worker] Confirmación detalle rece enviada (200)");
+                            os.flush();
+                            System.out.println("[Worker] Confirmación detalle rece enviada (0)");
                         }
                         break;
                     case Protocol.DETALLE_RECETA_UPDATE:
@@ -577,6 +617,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -589,6 +630,7 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -602,6 +644,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -614,6 +657,7 @@ public class Worker {
                             os.writeObject(le);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -632,6 +676,7 @@ public class Worker {
                             os.writeObject(usuario);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -646,14 +691,12 @@ public class Worker {
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
                         }
                         break;
-
-
-
                     case Protocol.DELIVER_MESSAGE:
                         try {
                             String message = (String) is.readObject();
@@ -663,6 +706,7 @@ public class Worker {
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
                             System.err.println("Error procesando mensaje: " + ex.getMessage());
+                            ex.printStackTrace();
                         }
                         finally {
                             os.flush();
@@ -677,7 +721,9 @@ public class Worker {
                 }
                 os.flush();
             } catch (IOException e) {
+                System.out.println("[Worker] Cliente desconectado (" + sid + ")");
                 stop();
+                srv.remove(this);
             }
         }
     }
