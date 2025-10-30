@@ -56,7 +56,6 @@ public class Service {
             }
         } catch (Exception e) {
             if (e.getMessage().contains("no encontrado")) {
-                // Si no existe, podemos crearlo
                 pacienteDao.create(p);
                 return;
             }
@@ -321,7 +320,6 @@ public class Service {
             return;
         } catch (Exception e) {
             if (!e.getMessage().equals("Clave actual incorrecta")) {
-                // Continuar buscando en otras tablas
             } else {
                 throw e;
             }
@@ -337,7 +335,6 @@ public class Service {
             return;
         } catch (Exception e) {
             if (!e.getMessage().equals("Clave actual incorrecta")) {
-                // Continuar buscando en otras tablas
             } else {
                 throw e;
             }

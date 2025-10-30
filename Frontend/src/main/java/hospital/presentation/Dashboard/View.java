@@ -9,6 +9,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+
+import hospital.presentation.ThreadListener;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import javax.swing.*;
@@ -22,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JComboBox<String> desdeAnio;
     private JComboBox<String> desdeMes;
     private JComboBox<String> hastaAnio;
@@ -508,6 +510,20 @@ public class View implements PropertyChangeListener {
         panelGraficoBarras.revalidate();
         panelGraficoBarras.repaint();
     }
+
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.actualizarEstadisticas(); // USA ESTE MÉTODO
+            } catch (Exception e) {
+                System.err.println("Error refrescando dashboard: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     private void actualizarTablaEstadisticas() {
         int[] cols = {

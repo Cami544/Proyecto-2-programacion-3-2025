@@ -8,11 +8,10 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class Server {
     private ServerSocket ss;
-    private List<Worker> workers; //Nose si requiera "final" revisar
+    private List<Worker> workers;
 
     private boolean continuar = true;
     private Service service;
@@ -35,11 +34,10 @@ public class Server {
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
                 String sid;
-                int tipoConexion = is.readInt(); // Saber si es SYNC o ASYNC
+                int tipoConexion = is.readInt();
 
                 switch (tipoConexion) {
                     case Protocol.SYNC:
-                      //  sid = UUID.randomUUID().toString();    // Crear sesión única para el cliente
                         sid = s.getRemoteSocketAddress().toString();
                         Worker worker = new Worker(this, s, os, is, sid, service);
                         workers.add(worker);
@@ -50,17 +48,8 @@ public class Server {
                         break;
 
                     case Protocol.ASYNC:
-                        sid= (String) is.readObject(); // Registrar socket asíncrono de un worker existente
+                        sid= (String) is.readObject();
                         join(s, os, is, sid);
-                        /*
-                        Worker existing = getWorkerBySid(sid);
-                        if (existing != null) {
-                            existing.setAs(s, os, is);
-                            System.out.println("Conexión ASYNC registrada para SID: " + sid);
-                        } else {
-                            System.out.println("No se encontró worker para SID: " + sid);
-                            s.close();
-                        }*/
                         break;
                 }
             } catch (Exception ex) {
@@ -94,12 +83,26 @@ public class Server {
         }
     }
 
-    public  synchronized void deliver_message(Worker from, String message){
+    // Broadcast a todos excepto al remitente (para notificaciones generales)
+    public synchronized void deliver_message(Worker from, String message){
         for(Worker w:workers) {
             if (w != from && w.isAsyncReady()) {
-                w. deliverMessage(message);
+                w.deliverMessage(message);
             }
         }
+    }
+
+    // Enviar mensaje a un usuario específico
+    public synchronized void deliver_message_to_user(String destinatarioId, String message){
+        System.out.println("[Server] Enviando mensaje a usuario: " + destinatarioId);
+        for(Worker w:workers) {
+            if (w.getUserId() != null && w.getUserId().equals(destinatarioId) && w.isAsyncReady()) {
+                w.deliverMessage(message);
+                System.out.println("[Server] Mensaje entregado a: " + destinatarioId);
+                return;
+            }
+        }
+        System.out.println("[Server] Usuario " + destinatarioId + " no encontrado o no conectado");
     }
 
     public Worker getWorkerBySid(String sid) {

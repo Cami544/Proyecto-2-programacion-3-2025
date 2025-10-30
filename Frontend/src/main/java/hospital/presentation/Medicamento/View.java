@@ -2,7 +2,7 @@ package hospital.presentation.Medicamento;
 
 import hospital.Application;
 import hospital.logic.Medicamento;
-
+import hospital.presentation.ThreadListener;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JPanel panel;
     private JLabel codigoLabel;
     private JTextField codigoText;
@@ -232,6 +232,20 @@ public class View implements PropertyChangeListener {
         medicamento.setPresentacion(presentacionText.getText().trim());
         return medicamento;
     }
+
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.refrescarDatos();
+            } catch (Exception e) {
+                System.err.println("Error refrescando medicamentos: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     private void clear() {
         codigoText.setText("");

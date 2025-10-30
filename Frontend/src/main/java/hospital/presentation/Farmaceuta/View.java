@@ -1,5 +1,5 @@
 package hospital.presentation.Farmaceuta;
-
+import hospital.presentation.ThreadListener;
 import hospital.Application;
 import hospital.logic.Farmaceuta;
 
@@ -13,7 +13,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JPanel panel;
     private JLabel idLabel;
     private JTextField idText;
@@ -231,6 +231,20 @@ public class View implements PropertyChangeListener {
         farmaceuta.setNombre(nombreText.getText().trim());
         return farmaceuta;
     }
+
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.refrescarDatos();
+            } catch (Exception e) {
+                System.err.println("Error refrescando farmaceutas: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     private void clear() {
         idText.setText("");

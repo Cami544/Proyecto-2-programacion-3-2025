@@ -21,6 +21,11 @@ public class Controller {
         }
     }
 
+    public void refrescarDatos() throws Exception {
+        model.setList(Service.instance().getMedicamentos());
+        model.setFiltered(Service.instance().getMedicamentos());
+    }
+
     public void save(Medicamento medicamento) throws Exception {
         try {
             Medicamento existing = Service.instance().readMedicamento(medicamento.getCodigo());

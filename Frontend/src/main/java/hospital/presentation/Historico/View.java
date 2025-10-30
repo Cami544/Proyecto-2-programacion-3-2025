@@ -1,7 +1,7 @@
 package hospital.presentation.Historico;
 
 import hospital.logic.Receta;
-
+import hospital.presentation.ThreadListener;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
@@ -12,7 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.format.DateTimeFormatter;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JPanel panel1;
     private JLabel buscarHist;
     private JTextField buscarHistField;
@@ -223,6 +223,14 @@ public class View implements PropertyChangeListener {
             columnModel.getColumn(5).setPreferredWidth(80);
         }
     }
+
+    @Override
+    public void refresh() {
+        refrescarDatos();
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     public void limpiarBusqueda() {
         buscarHistField.setText("");

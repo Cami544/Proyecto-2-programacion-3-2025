@@ -10,8 +10,14 @@ public class TableModel extends AbstractTableModel<Usuario> implements javax.swi
     public static final int ID = 0;
     public static final int MENSAJES = 1;
 
+    private Controller controller;
+
     public TableModel(int[] cols, List<Usuario> rows) {
         super(cols, rows);
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -20,7 +26,11 @@ public class TableModel extends AbstractTableModel<Usuario> implements javax.swi
             case ID:
                 return usuario.getId();
             case MENSAJES:
-                return "?";
+                if (controller != null) {
+                    int cantidad = controller.getCantidadMensajesPendientes(usuario.getId());
+                    return cantidad > 0 ? String.valueOf(cantidad) : "-";
+                }
+                return "-";
             default:
                 return "";
         }
@@ -30,6 +40,6 @@ public class TableModel extends AbstractTableModel<Usuario> implements javax.swi
     protected void initColNames() {
         colNames = new String[2];
         colNames[ID] = "Id";
-        colNames[MENSAJES] = "Mensajes?";
+        colNames[MENSAJES] = "Mensajes";
     }
 }

@@ -1,6 +1,8 @@
 package hospital;
 
 import hospital.logic.Sesion;
+import hospital.presentation.Refresher;
+import hospital.presentation.ThreadListener;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -22,6 +24,10 @@ public class Application {
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                // Detener el refresher si existe
+                if (refresher != null) {
+                    refresher.stop();
+                }
                 hospital.logic.Service.instance().stop();
                 System.exit(0);
             }
@@ -107,7 +113,61 @@ public class Application {
             System.err.println("Error iniciando SocketListener: " + ex.getMessage());
         }
 
+        // ============================================
+        // INICIAR REFRESHER PARA ACTUALIZAR TABLAS
+        // ============================================
+        iniciarRefresher();
+
         window.setVisible(true);
+    }
+
+    /**
+     * Inicializa el Refresher que actualiza TODAS las vistas cada 2 segundos
+     */
+    private static void iniciarRefresher() {
+        // Crear un listener compuesto que llama a refresh() en TODAS las vistas
+        ThreadListener compositeListener = new ThreadListener() {
+            @Override
+            public void refresh() {
+                // Refrescar TODAS las vistas que implementan ThreadListener
+                if (medicoView != null) {
+                    medicoView.refresh();
+                }
+                if (pacienteView != null) {
+                    pacienteView.refresh();
+                }
+                if (farmaceutaView != null) {
+                    farmaceutaView.refresh();
+                }
+                if (medicamentoView != null) {
+                    medicamentoView.refresh();
+                }
+                if (dashboardView != null) {
+                    dashboardView.refresh();
+                }
+                if (historicoView != null) {
+                    historicoView.refresh();
+                }
+                if (preescribirView != null) {
+                    preescribirView.refresh();
+                }
+                if (despachoView != null) {
+                    despachoView.refresh();
+                }
+                if (usuarioView != null) {
+                    usuarioView.refresh();
+                }
+            }
+
+            @Override
+            public void deliver_message(String message) {
+                // No necesario para el refresher
+            }
+        };
+
+        refresher = new Refresher(compositeListener);
+        refresher.start();
+        System.out.println("✅ Refresher iniciado - TODAS las tablas se actualizarán cada 2 segundos");
     }
 
     private static void createMenuBar() {
@@ -129,6 +189,11 @@ public class Application {
                     JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                // Detener Refresher
+                if (refresher != null) {
+                    refresher.stop();
+                }
+
                 // Notificar logout y detener SocketListener
                 try {
                     if (Sesion.getUsuario() != null) {
@@ -240,6 +305,8 @@ public class Application {
     private static hospital.presentation.Despacho.View despachoView;
     private static hospital.presentation.Usuario.View usuarioView;
     private static hospital.presentation.SocketListener socketListener;
+
+    private static Refresher refresher;
 
     private static ImageIcon medicosIcon = new ImageIcon(Application.class.getResource("/icons/icons8-care-16.png"));
     private static ImageIcon farmaceutasIcon = new ImageIcon(Application.class.getResource("/icons/icons8-pharmacist-16.png"));

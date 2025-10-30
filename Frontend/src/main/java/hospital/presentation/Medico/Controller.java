@@ -21,6 +21,23 @@ public class Controller {
         }
     }
 
+    // ============================================
+    // NUEVO MÉTODO PARA REFRESCAR DATOS
+    // ============================================
+
+    /**
+     * Refresca los datos de médicos desde el servicio.
+     * Este método es llamado automáticamente por el Refresher cada 2 segundos.
+     */
+    public void refrescarDatos() throws Exception {
+        model.setList(Service.instance().getMedicos());
+        model.setFiltered(Service.instance().getMedicos());
+    }
+
+    // ============================================
+    // MÉTODOS EXISTENTES
+    // ============================================
+
     public void save(Medico medico) throws Exception {
         boolean esNuevo = false;
 

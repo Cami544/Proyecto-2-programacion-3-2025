@@ -106,12 +106,14 @@ public class View implements PropertyChangeListener, ThreadListener {
             return;
         }
 
-        JOptionPane.showMessageDialog(panel,
-                "Los mensajes se reciben automáticamente.\n" +
-                        "Cuando llegue un mensaje del usuario " + model.getUsuarioSeleccionado().getId() +
-                        ", se mostrará una ventana emergente.",
-                "Información",
-                JOptionPane.INFORMATION_MESSAGE);
+        try {
+            controller.mostrarMensajesDe(model.getUsuarioSeleccionado());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panel,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
@@ -121,17 +123,17 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void refresh() {
-        // No necesario para este módulo
+
     }
 
-    public void mostrarMensajeRecibido(String remitente, String mensaje) {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(panel,
-                    "De: " + remitente + "\n\n" + mensaje,
-                    "Mensaje Recibido",
-                    JOptionPane.INFORMATION_MESSAGE);
-        });
-    }
+//    public void mostrarMensajeRecibido(String remitente, String mensaje) {
+//        SwingUtilities.invokeLater(() -> {
+//            JOptionPane.showMessageDialog(panel,
+//                    "De: " + remitente + "\n\n" + mensaje,
+//                    "Mensaje Recibido",
+//                    JOptionPane.INFORMATION_MESSAGE);
+//        });
+//    }
 
     public JPanel getPanel() {
         return panel;
@@ -161,7 +163,9 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     private void actualizarTabla() {
         int[] cols = {TableModel.ID, TableModel.MENSAJES};
-        usuariosTable.setModel(new TableModel(cols, model.getUsuariosActivos()));
+        TableModel tableModel = new TableModel(cols, model.getUsuariosActivos());
+        tableModel.setController(controller); // ← LÍNEA NUEVA
+        usuariosTable.setModel(tableModel);
         usuariosTable.setRowHeight(25);
 
         if (usuariosTable.getColumnModel().getColumnCount() > 0) {

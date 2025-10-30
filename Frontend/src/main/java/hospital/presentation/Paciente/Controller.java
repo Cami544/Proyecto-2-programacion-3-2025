@@ -40,6 +40,11 @@ public class Controller {
         }
     }
 
+    public void refrescarDatos() throws Exception {
+        model.setList(Service.instance().getPacientes());
+        model.setFiltered(Service.instance().getPacientes());
+    }
+
     public void search(String id) throws Exception {
         try {
             Paciente paciente = Service.instance().readPaciente(id);

@@ -2,6 +2,7 @@ package hospital.presentation.Medico;
 
 import hospital.Application;
 import hospital.logic.Medico;
+import hospital.presentation.ThreadListener;
 
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
@@ -13,7 +14,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JPanel panel;
     private JLabel idLabel;
     private JTextField idText;
@@ -50,6 +51,20 @@ public class View implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
     }
 
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.refrescarDatos();
+            } catch (Exception e) {
+                System.err.println("Error refrescando médicos: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {
+    }
     public void mostrarClaveAsignada(Medico medico) {
         String mensaje = "Medico creado exitosamente\n\n" +
                 "ID: " + medico.getId() + "\n" +

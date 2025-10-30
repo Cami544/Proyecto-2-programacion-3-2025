@@ -3,7 +3,7 @@ package hospital.presentation.Paciente;
 import com.github.lgooddatepicker.components.DatePicker;
 import hospital.Application;
 import hospital.logic.Paciente;
-
+import hospital.presentation.ThreadListener;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -15,7 +15,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JPanel panel;
     private JLabel idLabel;
     private JTextField idText;
@@ -297,6 +297,20 @@ public class View implements PropertyChangeListener {
             columnModel.getColumn(3).setPreferredWidth(120);
         }
     }
+
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.refrescarDatos();
+            } catch (Exception e) {
+                System.err.println("Error refrescando pacientes: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     private void updateCurrentFields() {
         if (model.getCurrent() != null) {

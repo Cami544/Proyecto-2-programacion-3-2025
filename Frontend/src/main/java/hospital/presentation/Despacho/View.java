@@ -3,13 +3,15 @@ package hospital.presentation.Despacho;
 import hospital.logic.Farmaceuta;
 import hospital.logic.Receta;
 
+import hospital.presentation.ThreadListener;
+
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JTable list;
     private JTextField buscarIdText;
     private JLabel idPacienteLabel;
@@ -237,6 +239,19 @@ public class View implements PropertyChangeListener {
             columnModel.getColumn(4).setPreferredWidth(150);
         }
     }
+    @Override
+    public void refresh() {
+        if (controller != null) {
+            try {
+                controller.refrecarDatos(); // NOTA EL TYPO
+            } catch (Exception e) {
+                System.err.println("Error refrescando despacho: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

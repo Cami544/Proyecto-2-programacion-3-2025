@@ -5,11 +5,17 @@ import hospital.presentation.AbstractModel;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Model extends AbstractModel {
     private List<Usuario> usuariosActivos;
     private Usuario usuarioSeleccionado;
+
+    // Nuevo: Almacenar mensajes pendientes por usuario
+    // Clave: userId del remitente, Valor: Lista de mensajes (formato "contenido")
+    private Map<String, List<String>> mensajesPendientes;
 
     public static final String USUARIOS_ACTIVOS = "usuariosActivos";
     public static final String USUARIO_SELECCIONADO = "usuarioSeleccionado";
@@ -17,6 +23,7 @@ public class Model extends AbstractModel {
     public Model() {
         this.usuariosActivos = new ArrayList<>();
         this.usuarioSeleccionado = null;
+        this.mensajesPendientes = new HashMap<>();
     }
 
     @Override
@@ -67,5 +74,26 @@ public class Model extends AbstractModel {
             firePropertyChange(USUARIO_SELECCIONADO);
         }
         firePropertyChange(USUARIOS_ACTIVOS);
+    }
+
+    // ============== MÉTODOS PARA MENSAJES ==============
+
+    public void agregarMensajePendiente(String remitenteId, String contenido) {
+        mensajesPendientes.computeIfAbsent(remitenteId, k -> new ArrayList<>()).add(contenido);
+        firePropertyChange(USUARIOS_ACTIVOS); // Refrescar tabla
+    }
+
+    public List<String> getMensajesPendientesDe(String remitenteId) {
+        return mensajesPendientes.getOrDefault(remitenteId, new ArrayList<>());
+    }
+
+    public int getCantidadMensajesPendientes(String remitenteId) {
+        List<String> mensajes = mensajesPendientes.get(remitenteId);
+        return (mensajes == null) ? 0 : mensajes.size();
+    }
+
+    public void limpiarMensajesDe(String remitenteId) {
+        mensajesPendientes.remove(remitenteId);
+        firePropertyChange(USUARIOS_ACTIVOS); // Refrescar tabla
     }
 }

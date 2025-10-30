@@ -3,7 +3,7 @@ package hospital.presentation.Preescribir;
 import com.github.lgooddatepicker.components.DatePicker;
 import hospital.logic.DetalleReceta;
 import hospital.logic.Paciente;
-
+import hospital.presentation.ThreadListener;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener, ThreadListener {
     private JButton buscarPacienteButton;
     private JButton agregarMedicamentoButton;
     private JTable tableReceta;
@@ -306,6 +306,14 @@ public class View implements PropertyChangeListener {
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }
+
+    @Override
+    public void refresh() {
+        // VACÍO - No necesita refrescar
+    }
+
+    @Override
+    public void deliver_message(String message) {}
 
     private void actualizarTablaReceta() {
         int[] cols = {TableModel.MEDICAMENTO, TableModel.PRESENTACION, TableModel.CANTIDAD, TableModel.INDICACIONES};

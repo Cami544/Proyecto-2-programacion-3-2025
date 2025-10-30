@@ -3,6 +3,9 @@ package hospital.presentation.Usuario;
 import hospital.logic.Sesion;
 import hospital.logic.Usuario;
 
+import javax.swing.*;
+import java.util.List;
+
 public class Controller {
     private View view;
     private Model model;
@@ -27,7 +30,8 @@ public class Controller {
             throw new Exception("No hay sesión activa");
         }
 
-        String mensajeFormateado = remitente.getId() + ":" + mensaje;
+        // Formato: DESTINATARIO:CONTENIDO
+        String mensajeFormateado = destinatario.getId() + ":" + mensaje;
 
         hospital.logic.Service.instance().enviarMensaje(mensajeFormateado);
 
@@ -57,7 +61,8 @@ public class Controller {
                 procesarLogout(contenido);
                 break;
             default:
-                view.mostrarMensajeRecibido(operacion, contenido);
+                // Es un mensaje de usuario (formato REMITENTE:CONTENIDO)
+                recibirMensajeEnCola(operacion, contenido);
                 break;
         }
     }
@@ -67,7 +72,6 @@ public class Controller {
             return;
         }
 
-        // Crear un usuario genérico usando una clase concreta
         Usuario nuevoUsuario = crearUsuarioGenerico(userId);
         model.agregarUsuario(nuevoUsuario);
         System.out.println("Usuario conectado: " + userId);
@@ -83,7 +87,6 @@ public class Controller {
     }
 
     private Usuario crearUsuarioGenerico(String userId) {
-        // Intentar determinar el tipo de usuario por el prefijo del ID
         if (userId.startsWith("MED-")) {
             hospital.logic.Medico medico = new hospital.logic.Medico();
             medico.setId(userId);
@@ -95,11 +98,67 @@ public class Controller {
             farmaceuta.setNombre(userId);
             return farmaceuta;
         } else {
-            // Por defecto, crear un Administrador
             hospital.logic.Administrador admin = new hospital.logic.Administrador();
             admin.setId(userId);
             admin.setNombre(userId);
             return admin;
         }
+    }
+
+    // ============== MÉTODOS PARA MENSAJES ==============
+
+    /**
+     * Recibir mensaje y guardarlo en el modelo
+     */
+    private void recibirMensajeEnCola(String remitente, String contenido) {
+        model.agregarMensajePendiente(remitente, contenido);
+
+        System.out.println("Mensaje recibido de " + remitente + ": " + contenido);
+        System.out.println("Mensajes pendientes de " + remitente + ": " +
+                model.getCantidadMensajesPendientes(remitente));
+    }
+
+    /**
+     * Mostrar mensajes pendientes de un usuario (llamado al presionar "Recibir")
+     */
+    public void mostrarMensajesDe(Usuario remitente) {
+        if (remitente == null) {
+            throw new IllegalArgumentException("Debe seleccionar un usuario");
+        }
+
+        String remitenteId = remitente.getId();
+        List<String> mensajes = model.getMensajesPendientesDe(remitenteId);
+
+        if (mensajes.isEmpty()) {
+            JOptionPane.showMessageDialog(view.getPanel(),
+                    "No hay mensajes de " + remitenteId,
+                    "Sin Mensajes",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Mostrar todos los mensajes
+        StringBuilder sb = new StringBuilder();
+        sb.append("═══════════════════════════════════\n");
+        sb.append("   MENSAJES DE: ").append(remitenteId).append("\n");
+        sb.append("═══════════════════════════════════\n\n");
+
+        for (int i = 0; i < mensajes.size(); i++) {
+            sb.append("► Mensaje ").append(i + 1).append(":\n");
+            sb.append(mensajes.get(i)).append("\n\n");
+            sb.append("───────────────────────────────────\n\n");
+        }
+
+        JOptionPane.showMessageDialog(view.getPanel(),
+                sb.toString(),
+                "Mensajes de " + remitenteId + " (" + mensajes.size() + ")",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        // Marcar como leídos y limpiar
+        model.limpiarMensajesDe(remitenteId);
+    }
+
+    public int getCantidadMensajesPendientes(String userId) {
+        return model.getCantidadMensajesPendientes(userId);
     }
 }

@@ -57,6 +57,11 @@ public class Controller {
         }
     }
 
+    public void refrescarDatos() throws Exception {
+        model.setList(Service.instance().getFarmaceutas());
+        model.setFiltered(Service.instance().getFarmaceutas());
+    }
+
     public void delete() throws Exception {
         if (model.getCurrent().getId() != null && !model.getCurrent().getId().trim().isEmpty()) {
             Service.instance().deleteFarmaceuta(model.getCurrent().getId());
