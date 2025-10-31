@@ -60,11 +60,14 @@ public class Service{
     }
 
     public void updatePaciente(Paciente e) throws Exception {
-        os.writeInt(Protocol.PACIENTE_UPDATE);
-        os.writeObject(e);
-        os.flush();
-        if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-        else throw new Exception("PACIENTE NO EXISTE");
+        synchronized (ioLock) {
+            os.writeInt(Protocol.PACIENTE_UPDATE);
+
+            os.writeObject(e);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+            } else throw new Exception("PACIENTE NO EXISTE");
+        }
     }
 
     public void deletePaciente(String id) throws Exception {
@@ -129,13 +132,15 @@ public class Service{
     }
 
     public void updateMedico(Medico e) throws Exception {
-        os.writeInt(Protocol.MEDICO_UPDATE);
-        os.writeObject(e);
-        os.flush();
-        if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-        else throw new Exception("MEDICO NO EXISTE");
-    }
+        synchronized (ioLock) {
+            os.writeInt(Protocol.MEDICO_UPDATE);
 
+            os.writeObject(e);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+            } else throw new Exception("MEDICO NO EXISTE");
+        }
+    }
     public void deleteMedico(String id) throws Exception {
         os.writeInt(Protocol.MEDICO_DELETE);
         os.writeUTF(id);
@@ -195,26 +200,20 @@ public class Service{
         }
         else throw new Exception("FARMACEUTA NO EXISTE");
     }
-    /*
-        public void updateFarmaceuta(Farmaceuta e) throws Exception {
-            os.writeInt(Protocol.FARMACEUTA_UPDATE);
-            os.writeObject(e);
-            os.flush();
-            if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-            else throw new Exception("FARMACEUTA NO EXISTE");
-        }
-        */
-    public void updateFarmaceuta(Farmaceuta f) throws Exception {
-        System.out.println("[Service] Enviando FARMACEUTA_UPDATE...");
-        os.writeInt(Protocol.FARMACEUTA_UPDATE);
-        os.writeObject(f);
-        os.flush();
-        System.out.println("[Service] Farmaceuta enviado id=" + f.getId() + ", nombre=" + f.getNombre());
 
-        int response = is.readInt();
-        System.out.println("[Service] Respuesta backend: " + response);
-        if (response != Protocol.ERROR_NO_ERROR)
-            throw new Exception("Error actualizando farmaceuta");
+    public void updateFarmaceuta(Farmaceuta f) throws Exception {
+        synchronized (ioLock) {
+            System.out.println("[Service] Enviando FARMACEUTA_UPDATE...");
+            os.writeInt(Protocol.FARMACEUTA_UPDATE);
+            os.writeObject(f);
+            os.flush();
+            System.out.println("[Service] Farmaceuta enviado id=" + f.getId() + ", nombre=" + f.getNombre());
+
+            int response = is.readInt();
+            System.out.println("[Service] Respuesta backend: " + response);
+            if (response != Protocol.ERROR_NO_ERROR)
+                throw new Exception("Error actualizando farmaceuta");
+        }
     }
 
     public void deleteFarmaceuta(String id) throws Exception {
@@ -277,11 +276,14 @@ public class Service{
     }
 
     public void updateMedicamento(Medicamento e) throws Exception {
-        os.writeInt(Protocol.MEDICAMENTO_UPDATE);
-        os.writeObject(e);
-        os.flush();
-        if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-        else throw new Exception("MEDICAMENTO NO EXISTE");
+        synchronized (ioLock) {
+            os.writeInt(Protocol.MEDICAMENTO_UPDATE);
+
+            os.writeObject(e);
+            os.flush();
+            if (is.readInt() == Protocol.ERROR_NO_ERROR) {
+            } else throw new Exception("MEDICAMENTO NO EXISTE");
+        }
     }
 
     public void deleteMedicamento(String id) throws Exception {
@@ -346,15 +348,17 @@ public class Service{
     }
 
     public void updateReceta(Receta r) throws Exception {
-        System.out.println("[Service] Enviando RECETA_UPDATE...");
-        os.writeInt(Protocol.RECETA_UPDATE);
-        os.writeObject(r);
-        os.flush();
-        System.out.println("[Service] Receta enviada id=" + r.getId() + ", estado=" + r.getEstadoReceta());
+        synchronized (ioLock) {
+            System.out.println("[Service] Enviando RECETA_UPDATE...");
 
-        if (is.readInt() != Protocol.ERROR_NO_ERROR)
-            throw new Exception("Error actualizando detalle receta");
+            os.writeInt(Protocol.RECETA_UPDATE);
+            os.writeObject(r);
+            os.flush();
+            System.out.println("[Service] Receta enviada id=" + r.getId() + ", estado=" + r.getEstadoReceta());
 
+            if (is.readInt() != Protocol.ERROR_NO_ERROR)
+                throw new Exception("Error actualizando detalle receta");
+        }
     }
 
 
@@ -486,25 +490,19 @@ public class Service{
         } else throw new Exception("ADMINISTRADOR DUPLICADO");
     }
 
-    /*
-        public void updateDetalleReceta(DetalleReceta e) throws Exception {
-            os.writeInt(Protocol.DETALLE_RECETA_UPDATE);
-            os.writeObject(e);
-            os.flush();
-            if (is.readInt() == Protocol.ERROR_NO_ERROR) {}
-            else throw new Exception("UPDATE DETALLE RECETA NO EXISTE");
-        }
-    */
     public void updateDetalleReceta(DetalleReceta d) throws Exception {
-        System.out.println("[Service] Enviando DETALLERECETA_UPDATE...");
-        os.writeInt(Protocol.DETALLE_RECETA_UPDATE);
-        os.writeObject(d);
-        os.flush();
-        System.out.println("[Service] Detalle enviado id=" + d.getId() + ", recetaId=" + d.getRecetaId());
+        synchronized (ioLock) {
+            System.out.println("[Service] Enviando DETALLERECETA_UPDATE...");
 
-        int response = is.readInt();
-        System.out.println("[Service] Respuesta backend: " + response);
-        if (response != 200) throw new Exception("Error actualizando detalle receta");
+            os.writeInt(Protocol.DETALLE_RECETA_UPDATE);
+            os.writeObject(d);
+            os.flush();
+            System.out.println("[Service] Detalle enviado id=" + d.getId() + ", recetaId=" + d.getRecetaId());
+
+            int response = is.readInt();
+            System.out.println("[Service] Respuesta backend: " + response);
+            if (response != 200) throw new Exception("Error actualizando detalle receta");
+        }
     }
 
     public void deleteDetalleReceta(int id) throws Exception {

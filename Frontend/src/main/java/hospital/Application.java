@@ -108,10 +108,10 @@ public class Application {
             String sid = hospital.logic.Service.instance().getSid();
             socketListener = new hospital.presentation.SocketListener(usuarioView, sid);
             socketListener.start();
-            System.out.println("✅ SocketListener iniciado con SID: " + sid);
+            System.out.println(" SocketListener iniciado con SID: " + sid);
             // La lista de usuarios se actualiza automáticamente mediante Refresher
         } catch (Exception ex) {
-            System.err.println("❌ Error iniciando SocketListener: " + ex.getMessage());
+            System.err.println(" Error iniciando SocketListener: " + ex.getMessage());
         }
 
         // Añadir al usuario actual para que se vea a sí mismo en la lista (los demás llegan por notificación)
@@ -193,7 +193,7 @@ public class Application {
 
         refresher = new Refresher(compositeListener);
         refresher.start();
-        System.out.println("✅ Refresher iniciado - Todas las tablas se actualizarán cada 2 segundos");
+        System.out.println(" Refresher iniciado - Todas las tablas se actualizarán cada 2 segundos");
     }
 
     private static void createMenuBar() {
