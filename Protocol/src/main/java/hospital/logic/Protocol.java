@@ -10,6 +10,7 @@ public class Protocol {
     public static final int PACIENTE_UPDATE = 103;
     public static final int PACIENTE_DELETE = 104;
     public static final int PACIENTE_SEARCH = 105;
+    public static final int PACIENTE_GETALL = 106;
 
     // ----------------- MÉDICO ---------------------------
     public static final int MEDICO_CREATE = 201;
@@ -17,6 +18,7 @@ public class Protocol {
     public static final int MEDICO_UPDATE = 203;
     public static final int MEDICO_DELETE = 204;
     public static final int MEDICO_SEARCH = 205;
+    public static final int MEDICO_GETALL = 206;
 
     // ----------------- FARMACEUTA -----------------------
     public static final int FARMACEUTA_CREATE = 301;
@@ -24,6 +26,7 @@ public class Protocol {
     public static final int FARMACEUTA_UPDATE = 303;
     public static final int FARMACEUTA_DELETE = 304;
     public static final int FARMACEUTA_SEARCH = 305;
+    public static final int FARMACEUTA_GETALL = 306;
 
     // ----------------- MEDICAMENTO ----------------------
     public static final int MEDICAMENTO_CREATE = 401;
@@ -31,6 +34,7 @@ public class Protocol {
     public static final int MEDICAMENTO_UPDATE = 403;
     public static final int MEDICAMENTO_DELETE = 404;
     public static final int MEDICAMENTO_SEARCH = 405;
+    public static final int MEDICAMENTO_GETALL = 406;
 
     // ----------------- RECETA ---------------------------
     public static final int RECETA_CREATE = 501;
@@ -38,6 +42,7 @@ public class Protocol {
     public static final int RECETA_UPDATE = 503;
     public static final int RECETA_DELETE = 504;
     public static final int RECETA_SEARCH = 505;
+    public static final int RECETA_GETALL = 506;
 
     // ----------------- ADMINISTRADOR --------------------
     public static final int ADMINISTRADOR_CREATE = 601;
@@ -58,23 +63,17 @@ public class Protocol {
     public static final int CHANGE_PASSWORD = 802;
 
     //-----------NOTIFICACIONES ASINCRONICAS---------------
-
     public static final int SYNC           = 900;  // solicita Session Id
     public static final int ASYNC          = 901;  // registra socket asíncrono
     public static final int DELIVER_MESSAGE = 902; // notificación
 
-    //------------------ ERRORES --------------------------
+    //------------------ USUARIOS CONECTADOS --------------
+    public static final int USUARIOS_CONECTADOS = 903; // NUEVO: obtener lista de usuarios conectados
 
+    //------------------ ERRORES --------------------------
     public static final int ERROR_NO_ERROR=0;
     public static final int ERROR_ERROR=1;
 
     //-----------------------------------------------------
     public static final int DISCONNECT=99;
-
-
-    public static final int MEDICO_GETALL = 206;
-    public static final int FARMACEUTA_GETALL = 306;
-    public static final int MEDICAMENTO_GETALL = 406;
-    public static final int PACIENTE_GETALL = 106;
-    public static final int RECETA_GETALL = 506;
 }

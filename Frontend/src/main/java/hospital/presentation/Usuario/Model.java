@@ -52,7 +52,9 @@ public class Model extends AbstractModel {
     }
 
     public void agregarUsuario(Usuario usuario) {
-        if (!usuariosActivos.contains(usuario)) {
+        if (usuario == null || usuario.getId() == null) return;
+        boolean yaExiste = usuariosActivos.stream().anyMatch(u -> u.getId().equals(usuario.getId()));
+        if (!yaExiste) {
             usuariosActivos.add(usuario);
             firePropertyChange(USUARIOS_ACTIVOS);
         }

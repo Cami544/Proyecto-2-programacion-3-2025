@@ -619,8 +619,7 @@ public class Worker {
 
                             os.writeInt(Protocol.ERROR_NO_ERROR);
                             os.writeObject(usuario);
-
-                            // Notificar a todos que este usuario se conectó
+                            // Notificar a los demás clientes que este usuario ingresó
                             srv.deliver_message(this, "LOGIN:" + userId);
                         } catch (Exception ex) {
                             os.writeInt(Protocol.ERROR_ERROR);
@@ -679,8 +678,22 @@ public class Worker {
                         break;
 
 
+                    case Protocol.USUARIOS_CONECTADOS:
+                        try {
+                            List<String> usuariosConectados = srv.getUsuariosConectados();
+                            os.writeInt(Protocol.ERROR_NO_ERROR);
+                            os.writeObject(usuariosConectados);
+                        } catch (Exception ex) {
+                            os.writeInt(Protocol.ERROR_ERROR);
+                            ex.printStackTrace();
+                        }
+                        finally {
+                            os.flush();
+                        }
+                        break;
+
                     case Protocol.DISCONNECT:
-                        // Notificar logout antes de desconectar
+                        // Notificar logout y cerrar
                         if (userId != null) {
                             srv.deliver_message(this, "LOGOUT:" + userId);
                         }

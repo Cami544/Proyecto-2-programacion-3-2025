@@ -51,7 +51,7 @@ public class Application {
     }
 
     public static void doRun() {
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
         // Crear panel principal con BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -101,20 +101,38 @@ public class Application {
                 break;
         }
 
-        // Iniciar SocketListener para notificaciones asíncronas
+        // ============================================
+        // PASO 1: INICIAR SocketListener (para mensajes entre usuarios)
+        // ============================================
         try {
             String sid = hospital.logic.Service.instance().getSid();
             socketListener = new hospital.presentation.SocketListener(usuarioView, sid);
             socketListener.start();
-            System.out.println("SocketListener iniciado con SID: " + sid);
-
-            hospital.logic.Service.instance().enviarMensaje("LOGIN:" + Sesion.getUsuario().getId());
+            System.out.println("✅ SocketListener iniciado con SID: " + sid);
+            // La lista de usuarios se actualiza automáticamente mediante Refresher
         } catch (Exception ex) {
-            System.err.println("Error iniciando SocketListener: " + ex.getMessage());
+            System.err.println("❌ Error iniciando SocketListener: " + ex.getMessage());
+        }
+
+        // Añadir al usuario actual para que se vea a sí mismo en la lista (los demás llegan por notificación)
+        try {
+            if (Sesion.getUsuario() != null && usuarioController != null) {
+                usuarioController.agregarUsuarioActual();
+            }
+        } catch (Exception ignore) {}
+
+        // Sincronizar lista inicial de conectados ya presentes en el servidor
+        try {
+            java.util.List<String> conectados = hospital.logic.Service.instance().getUsuariosConectados();
+            if (usuarioController != null && conectados != null) {
+                usuarioController.sincronizarUsuariosIniciales(conectados);
+            }
+        } catch (Exception ex) {
+            System.err.println("No se pudo sincronizar usuarios iniciales: " + ex.getMessage());
         }
 
         // ============================================
-        // INICIAR REFRESHER PARA ACTUALIZAR TABLAS
+        // PASO 2: INICIAR REFRESHER para actualizar TODAS las tablas (EXCEPTO usuarios)
         // ============================================
         iniciarRefresher();
 
@@ -125,49 +143,57 @@ public class Application {
      * Inicializa el Refresher que actualiza TODAS las vistas cada 2 segundos
      */
     private static void iniciarRefresher() {
-        // Crear un listener compuesto que llama a refresh() en TODAS las vistas
+        // Crear un listener compuesto que refresca SOLO la pestaña visible (EXCEPTO usuarioView)
         ThreadListener compositeListener = new ThreadListener() {
             @Override
             public void refresh() {
-                // Refrescar TODAS las vistas que implementan ThreadListener
-                if (medicoView != null) {
+                if (tabbedPane == null) return;
+                java.awt.Component selected = tabbedPane.getSelectedComponent();
+                if (selected == null) return;
+
+                // UsuarioView no se refresca; se actualiza por notificaciones
+                if (medicoView != null && selected == medicoView.getPanel()) {
                     medicoView.refresh();
+                    return;
                 }
-                if (pacienteView != null) {
+                if (pacienteView != null && selected == pacienteView.getPanel()) {
                     pacienteView.refresh();
+                    return;
                 }
-                if (farmaceutaView != null) {
+                if (farmaceutaView != null && selected == farmaceutaView.getPanel()) {
                     farmaceutaView.refresh();
+                    return;
                 }
-                if (medicamentoView != null) {
+                if (medicamentoView != null && selected == medicamentoView.getPanel()) {
                     medicamentoView.refresh();
+                    return;
                 }
-                if (dashboardView != null) {
+                if (dashboardView != null && selected == dashboardView.getPanel()) {
                     dashboardView.refresh();
+                    return;
                 }
-                if (historicoView != null) {
+                if (historicoView != null && selected == historicoView.getPanel()) {
                     historicoView.refresh();
+                    return;
                 }
-                if (preescribirView != null) {
+                if (preescribirView != null && selected == preescribirView.getPanel()) {
                     preescribirView.refresh();
+                    return;
                 }
-                if (despachoView != null) {
+                if (despachoView != null && selected == despachoView.getPanel()) {
                     despachoView.refresh();
-                }
-                if (usuarioView != null) {
-                    usuarioView.refresh();
                 }
             }
 
             @Override
             public void deliver_message(String message) {
-                // No necesario para el refresher
+                // No necesario
             }
         };
 
         refresher = new Refresher(compositeListener);
         refresher.start();
-        System.out.println("✅ Refresher iniciado - TODAS las tablas se actualizarán cada 2 segundos");
+        System.out.println("✅ Refresher iniciado - Todas las tablas se actualizarán cada 2 segundos");
     }
 
     private static void createMenuBar() {
@@ -194,14 +220,12 @@ public class Application {
                     refresher.stop();
                 }
 
-                // Notificar logout y detener SocketListener
+                // Detener SocketListener
                 try {
-                    if (Sesion.getUsuario() != null) {
-                        hospital.logic.Service.instance().enviarMensaje("LOGOUT:" + Sesion.getUsuario().getId());
-                    }
                     if (socketListener != null) {
                         socketListener.stop();
                     }
+                    // La lista de usuarios se actualiza automáticamente mediante Refresher
                 } catch (Exception ex) {
                     System.err.println("Error en logout: " + ex.getMessage());
                 }
@@ -305,6 +329,7 @@ public class Application {
     private static hospital.presentation.Despacho.View despachoView;
     private static hospital.presentation.Usuario.View usuarioView;
     private static hospital.presentation.SocketListener socketListener;
+    private static javax.swing.JTabbedPane tabbedPane;
 
     private static Refresher refresher;
 

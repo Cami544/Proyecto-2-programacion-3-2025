@@ -118,22 +118,14 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void deliver_message(String mensaje) {
+        // Este método es llamado por el SocketListener cuando llega una notificación
         controller.procesarNotificacion(mensaje);
     }
 
     @Override
     public void refresh() {
-
+        // No usar refresco periódico para usuarios; se actualiza por notificaciones async
     }
-
-//    public void mostrarMensajeRecibido(String remitente, String mensaje) {
-//        SwingUtilities.invokeLater(() -> {
-//            JOptionPane.showMessageDialog(panel,
-//                    "De: " + remitente + "\n\n" + mensaje,
-//                    "Mensaje Recibido",
-//                    JOptionPane.INFORMATION_MESSAGE);
-//        });
-//    }
 
     public JPanel getPanel() {
         return panel;
@@ -164,7 +156,7 @@ public class View implements PropertyChangeListener, ThreadListener {
     private void actualizarTabla() {
         int[] cols = {TableModel.ID, TableModel.MENSAJES};
         TableModel tableModel = new TableModel(cols, model.getUsuariosActivos());
-        tableModel.setController(controller); // ← LÍNEA NUEVA
+        tableModel.setController(controller);
         usuariosTable.setModel(tableModel);
         usuariosTable.setRowHeight(25);
 

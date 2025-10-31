@@ -11,6 +11,7 @@ public class Refresher {
 
     private Thread hilo;
     private boolean condition = false;
+    private volatile boolean running = false; // evita superposición de refresh
 
     public void start() {
         if (condition) {
@@ -22,12 +23,14 @@ public class Refresher {
             public void run() {
                 while (condition) {
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                         break;
                     }
-                    refresh();
+                    if (!running) {
+                        refresh();
+                    }
                 }
             }
         };
@@ -35,7 +38,7 @@ public class Refresher {
         hilo.setDaemon(true);
         condition = true;
         hilo.start();
-        System.out.println("Refresher iniciado - actualizando cada 2 segundos");
+        System.out.println("Refresher iniciado - actualizando cada 3 segundos");
     }
 
     public void stop() {
@@ -49,10 +52,15 @@ public class Refresher {
     long c = 0;
     private void refresh() {
         System.out.println("Refresh #" + c++);
+        running = true;
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
-                        listener.refresh();
+                        try {
+                            listener.refresh();
+                        } finally {
+                            running = false;
+                        }
                     }
                 }
         );

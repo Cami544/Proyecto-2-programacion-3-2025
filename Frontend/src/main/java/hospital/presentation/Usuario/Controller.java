@@ -30,7 +30,6 @@ public class Controller {
             throw new Exception("No hay sesión activa");
         }
 
-        // Formato: DESTINATARIO:CONTENIDO
         String mensajeFormateado = destinatario.getId() + ":" + mensaje;
 
         hospital.logic.Service.instance().enviarMensaje(mensajeFormateado);
@@ -50,8 +49,9 @@ public class Controller {
             return;
         }
 
-        String operacion = partes[0].toUpperCase();
+        String primerToken = partes[0];
         String contenido = partes[1];
+        String operacion = primerToken.toUpperCase();
 
         switch (operacion) {
             case "LOGIN":
@@ -61,29 +61,24 @@ public class Controller {
                 procesarLogout(contenido);
                 break;
             default:
-                // Es un mensaje de usuario (formato REMITENTE:CONTENIDO)
-                recibirMensajeEnCola(operacion, contenido);
+                recibirMensajeEnCola(primerToken, contenido);
                 break;
         }
     }
 
-    private void procesarLogin(String userId) {
-        if (Sesion.getUsuario() != null && Sesion.getUsuario().getId().equals(userId)) {
-            return;
-        }
+    public void seleccionarUsuario(Usuario usuario) {
+        model.setUsuarioSeleccionado(usuario);
+    }
 
+    private void procesarLogin(String userId) {
         Usuario nuevoUsuario = crearUsuarioGenerico(userId);
         model.agregarUsuario(nuevoUsuario);
-        System.out.println("Usuario conectado: " + userId);
+        System.out.println(" Usuario conectado: " + userId);
     }
 
     private void procesarLogout(String userId) {
         model.removerUsuarioPorId(userId);
-        System.out.println("Usuario desconectado: " + userId);
-    }
-
-    public void seleccionarUsuario(Usuario usuario) {
-        model.setUsuarioSeleccionado(usuario);
+        System.out.println(" Usuario desconectado: " + userId);
     }
 
     private Usuario crearUsuarioGenerico(String userId) {
@@ -107,9 +102,6 @@ public class Controller {
 
     // ============== MÉTODOS PARA MENSAJES ==============
 
-    /**
-     * Recibir mensaje y guardarlo en el modelo
-     */
     private void recibirMensajeEnCola(String remitente, String contenido) {
         model.agregarMensajePendiente(remitente, contenido);
 
@@ -118,9 +110,6 @@ public class Controller {
                 model.getCantidadMensajesPendientes(remitente));
     }
 
-    /**
-     * Mostrar mensajes pendientes de un usuario (llamado al presionar "Recibir")
-     */
     public void mostrarMensajesDe(Usuario remitente) {
         if (remitente == null) {
             throw new IllegalArgumentException("Debe seleccionar un usuario");
@@ -137,14 +126,13 @@ public class Controller {
             return;
         }
 
-        // Mostrar todos los mensajes
         StringBuilder sb = new StringBuilder();
         sb.append("═══════════════════════════════════\n");
         sb.append("   MENSAJES DE: ").append(remitenteId).append("\n");
         sb.append("═══════════════════════════════════\n\n");
 
         for (int i = 0; i < mensajes.size(); i++) {
-            sb.append("► Mensaje ").append(i + 1).append(":\n");
+            sb.append("> Mensaje ").append(i + 1).append(":\n");
             sb.append(mensajes.get(i)).append("\n\n");
             sb.append("───────────────────────────────────\n\n");
         }
@@ -154,11 +142,48 @@ public class Controller {
                 "Mensajes de " + remitenteId + " (" + mensajes.size() + ")",
                 JOptionPane.INFORMATION_MESSAGE);
 
-        // Marcar como leídos y limpiar
         model.limpiarMensajesDe(remitenteId);
     }
 
     public int getCantidadMensajesPendientes(String userId) {
         return model.getCantidadMensajesPendientes(userId);
+    }
+
+    public void agregarUsuarioActual() {
+        if (Sesion.getUsuario() != null) {
+            Usuario usuarioActual = Sesion.getUsuario();
+            model.agregarUsuario(usuarioActual);
+            System.out.println("Usuario actual agregado a la lista: " + usuarioActual.getId());
+        }
+    }
+
+    public void sincronizarUsuariosIniciales(List<String> usuariosIds) {
+        if (usuariosIds == null) return;
+        for (String id : usuariosIds) {
+            if (Sesion.getUsuario() != null && id.equals(Sesion.getUsuario().getId())) {
+                continue;
+            }
+            Usuario u = crearUsuarioGenerico(id);
+            model.agregarUsuario(u);
+        }
+    }
+
+
+    public void refrescarDatos() {
+        try {
+            List<String> usuariosConectadosIds = hospital.logic.Service.instance().getUsuariosConectados();
+
+            List<Usuario> usuariosConectados = new java.util.ArrayList<>();
+            for (String userId : usuariosConectadosIds) {
+                Usuario usuario = crearUsuarioGenerico(userId);
+                usuariosConectados.add(usuario);
+            }
+
+            model.setUsuariosActivos(usuariosConectados);
+
+        } catch (Exception ex) {
+            System.err.println("Error refrescando usuarios conectados: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 }

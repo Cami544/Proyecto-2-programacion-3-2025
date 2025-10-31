@@ -113,4 +113,17 @@ public class Server {
         }
         return null;
     }
+
+    /**
+     * Obtiene la lista de IDs de usuarios conectados (autenticados)
+     */
+    public synchronized List<String> getUsuariosConectados() {
+        List<String> usuarios = new ArrayList<>();
+        for (Worker w : workers) {
+            if (w.getUserId() != null) {
+                usuarios.add(w.getUserId());
+            }
+        }
+        return usuarios;
+    }
 }
