@@ -260,7 +260,9 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        switch(evt.getPropertyName()){
+        int selectedRow = pacienteList.getSelectedRow(); // 🔹 Guardar fila seleccionada
+
+        switch (evt.getPropertyName()) {
             case Model.LIST:
                 updateTableWithList();
                 break;
@@ -271,6 +273,12 @@ public class View implements PropertyChangeListener, ThreadListener {
                 updateCurrentFields();
                 break;
         }
+
+        // 🔹 Restaurar la selección después de actualizar la tabla
+        if (selectedRow >= 0 && selectedRow < pacienteList.getRowCount()) {
+            pacienteList.setRowSelectionInterval(selectedRow, selectedRow);
+        }
+
         this.panel.revalidate();
     }
 

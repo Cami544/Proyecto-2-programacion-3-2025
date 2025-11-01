@@ -8,7 +8,7 @@ public class Refresher {
     private boolean condition = false;
     private volatile boolean running = false;
     private long c = 0;
-    private static final int REFRESH_INTERVAL_MS = 30000; // 20 segundos
+    private static final int REFRESH_INTERVAL_MS = 3000; // 20 segundos
 
 
     public Refresher(ThreadListener listener) {

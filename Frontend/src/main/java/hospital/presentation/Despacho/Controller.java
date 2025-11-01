@@ -30,14 +30,19 @@ public class Controller {
             catch(Exception e){ System.out.println("Error al cargar los datos"+ e.getMessage()); }
         }
 
-       public void refrecarDatos()throws Exception{
-           List< Receta> recetas = Service.instance().getRecetas();
-           List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
-           model.setListFarmaceutas( farmaceutas);
-           model.setListReceta( recetas);
-           model.setListRecetaPacienteFiltrado( recetas);
-           model.setCriterioFiltro("");
+    public void refrecarDatos() throws Exception {
+        // NO refrescar si hay una receta seleccionada (en edición)
+        if (model.getRecetaSeleccionada() != null) {
+            return;
         }
+
+        List<Receta> recetas = Service.instance().getRecetas();
+        List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
+        model.setListFarmaceutas(farmaceutas);
+        model.setListReceta(recetas);
+        model.setListRecetaPacienteFiltrado(recetas);
+        model.setCriterioFiltro("");
+    }
 
     public void buscarRecetasPorPaciente(String criterio) {
         model.setCriterioFiltro(criterio);

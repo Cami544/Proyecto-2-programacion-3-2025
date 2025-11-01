@@ -166,6 +166,7 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        int selectedRow = table.getSelectedRow(); // 🔹 Guardar fila seleccionada
         switch (evt.getPropertyName()) {
             case Model.LIST:
                 updateTable();
@@ -177,6 +178,11 @@ public class View implements PropertyChangeListener, ThreadListener {
                 updateCurrentFields();
                 break;
         }
+
+        if (selectedRow >= 0 && selectedRow < table.getRowCount()) {
+            table.setRowSelectionInterval(selectedRow, selectedRow);
+        }
+
         this.panel.revalidate();
     }
 

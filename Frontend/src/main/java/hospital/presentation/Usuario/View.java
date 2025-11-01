@@ -124,7 +124,10 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void refresh() {
-        // No usar refresco periódico para usuarios; se actualiza por notificaciones async
+        // Refrescar lista de usuarios conectados desde el servidor
+        if (controller != null) {
+            controller.refrescarDatos();
+        }
     }
 
     public JPanel getPanel() {

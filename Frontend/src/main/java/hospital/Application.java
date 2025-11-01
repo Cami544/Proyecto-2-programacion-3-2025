@@ -151,7 +151,7 @@ public class Application {
                 Component selected = tabbedPane.getSelectedComponent();
                 if (selected == null) return;
 
-                // Solo refrescar la pestaña visible (ejecución segura en background)
+                // Refrescar la pestaña visible
                 try {
                     if (selected == medicoView.getPanel()) medicoView.refresh();
                     else if (selected == pacienteView.getPanel()) pacienteView.refresh();
@@ -161,6 +161,12 @@ public class Application {
                     else if (selected == historicoView.getPanel()) historicoView.refresh();
                     else if (selected == preescribirView.getPanel()) preescribirView.refresh();
                     else if (selected == despachoView.getPanel()) despachoView.refresh();
+
+                    // 🔹 AÑADIR ESTA LÍNEA PARA REFRESCAR USUARIOS
+                    if (usuarioView != null) {
+                        usuarioView.refresh();
+                    }
+
                 } catch (Exception ex) {
                     System.err.println("[Refresher] Error refrescando pestaña visible: " + ex.getMessage());
                 }
@@ -172,13 +178,12 @@ public class Application {
             }
         };
 
-        // 🔹 Creamos y lanzamos el refresher global (solo refresca la pestaña activa)
+        // Creamos y lanzamos el refresher global
         refresher = new Refresher(compositeListener);
         refresher.start();
 
-        System.out.println(" Refresher iniciado - refrescando solo pestaña visible cada 3 segundos");
+        System.out.println("✅ Refresher iniciado - refrescando TODAS las pestañas cada 3 segundos");
 
-        // 🔹 Opcional: detener / reanudar cuando cambies de pestaña
         tabbedPane.addChangeListener(e -> {
             Component selected = tabbedPane.getSelectedComponent();
             if (selected == null) return;
