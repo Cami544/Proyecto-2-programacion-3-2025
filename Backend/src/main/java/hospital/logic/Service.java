@@ -218,7 +218,15 @@ public class Service {
     }
 
     public void updateReceta(Receta r) throws Exception {
+        if (r.getFarmaceutaId() != null && !r.getFarmaceutaId().isEmpty()) {
+            // validar que el farmaceuta exista antes de intentar el update
+            Farmaceuta f = farmaceutaDao.read(r.getFarmaceutaId());
+            if (f == null) {
+                throw new Exception("Farmaceuta no existe: " + r.getFarmaceutaId());
+            }
+        }
         recetaDao.update(r);
+        System.out.println("[Service] Receta actualizada en base de datos: ID=" + r.getId());
     }
 
     public void deleteReceta(String r) throws Exception {

@@ -3,6 +3,7 @@ package hospital.presentation.Despacho;
 import hospital.logic.Farmaceuta;
 import hospital.logic.Receta;
 
+import hospital.logic.Service;
 import hospital.presentation.ThreadListener;
 
 import javax.swing.*;
@@ -61,10 +62,7 @@ public class View implements PropertyChangeListener, ThreadListener {
                 try {
                     Farmaceuta farmaceuta = (Farmaceuta) farmaceutaComboBox.getSelectedItem();
                     String estado = (String) recetaComboBox.getSelectedItem();
-
-                   //verificaciones de secuencia
                     Receta receta = model.getRecetaSeleccionada();
-
                     if (receta == null) {
                         JOptionPane.showMessageDialog(panel,
                                 "Debe seleccionar una receta primero.",
@@ -72,9 +70,23 @@ public class View implements PropertyChangeListener, ThreadListener {
                                 JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-
+                    if (farmaceuta == null) {
+                        JOptionPane.showMessageDialog(panel,
+                                "Debe seleccionar un farmaceuta antes de guardar.",
+                                "Advertencia",
+                                JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    String farmaceutaId = farmaceuta.getId();
+                    if (farmaceutaId == null || farmaceutaId.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(panel,
+                                "El farmaceuta seleccionado no tiene un ID válido.",
+                                "Error de datos",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    // Validar secuencia
                     String estadoActual = receta.getEstadoReceta();
-
                     if (!esCambioValido(estadoActual, estado)) {
                         JOptionPane.showMessageDialog(panel,
                                 "No se puede cambiar el estado de '" + estadoActual +
@@ -82,13 +94,12 @@ public class View implements PropertyChangeListener, ThreadListener {
                                         "Confeccionada → En proceso → Lista → Entregada.",
                                 "Cambio no permitido",
                                 JOptionPane.WARNING_MESSAGE);
-                        recetaComboBox.setSelectedItem(estadoActual); // Revertir cambio visual
+                        recetaComboBox.setSelectedItem(estadoActual);
                         return;
                     }
-
-                    String farmaceutaId = farmaceuta != null ? farmaceuta.getId() : null;
+                    System.out.println("[Despacho][DEBUG] Farmaceuta seleccionado: " +
+                            (farmaceuta != null ? (farmaceuta.getId() + " - " + farmaceuta.getNombre()) : "null"));
                     controller.guardarCambiosReceta(farmaceutaId, estado);
-
                     JOptionPane.showMessageDialog(panel,
                             "La receta se actualizó correctamente.",
                             "Información",
@@ -97,7 +108,6 @@ public class View implements PropertyChangeListener, ThreadListener {
                     if ("Entregada".equalsIgnoreCase(estado)) {
                         recetaComboBox.setEnabled(false);
                     }
-
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(panel,
                             "Error al guardar cambios: " + ex.getMessage(),
@@ -168,6 +178,7 @@ public class View implements PropertyChangeListener, ThreadListener {
         for (Farmaceuta f : model.getListFarmaceutas()) {
             farmaceutaComboBox.addItem(f);
         }
+        System.out.println("[Despacho] Cargando farmaceutas: " + model.getListFarmaceutas().size());
 
         recetaComboBox.removeAllItems();
         recetaComboBox.addItem("Confeccionada");
@@ -181,7 +192,9 @@ public class View implements PropertyChangeListener, ThreadListener {
         if (receta != null) {
             buscarIdText.setText(receta.getPacienteId());
 
-            if (receta.getFarmaceutaId() != null) {
+            if (receta.getFarmaceutaId() == null || receta.getFarmaceutaId().trim().isEmpty()) {
+                farmaceutaComboBox.setSelectedIndex(-1);
+            } else {
                 for (int i = 0; i < farmaceutaComboBox.getItemCount(); i++) {
                     Farmaceuta f = (Farmaceuta) farmaceutaComboBox.getItemAt(i);
                     if (f != null && receta.getFarmaceutaId().equals(f.getId())) {
@@ -189,10 +202,7 @@ public class View implements PropertyChangeListener, ThreadListener {
                         break;
                     }
                 }
-            } else {
-                farmaceutaComboBox.setSelectedIndex(-1);
             }
-
             if (receta.getEstadoReceta() != null) {
                 recetaComboBox.setSelectedItem(receta.getEstadoReceta());
             } else {
@@ -239,15 +249,20 @@ public class View implements PropertyChangeListener, ThreadListener {
             columnModel.getColumn(4).setPreferredWidth(150);
         }
     }
+
     @Override
     public void refresh() {
-        if (controller != null) {
+        if (controller == null) return;
+        new Thread(() -> {
+            if (!Service.instance().tryStartRefresh()) return;
             try {
-                controller.refrecarDatos(); // NOTA EL TYPO
+                controller.refrecarDatos();
             } catch (Exception e) {
                 System.err.println("Error refrescando despacho: " + e.getMessage());
+            } finally {
+                Service.instance().endRefresh();
             }
-        }
+        }, "Despacho-Refresh-Thread").start();
     }
 
     @Override

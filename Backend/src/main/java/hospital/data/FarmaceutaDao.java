@@ -34,14 +34,15 @@ public class FarmaceutaDao {
     }
 
     public Farmaceuta read(String id) throws Exception {
-        String sql = "SELECT * FROM Farmaceuta f WHERE f.id=?";
+        String sql = "SELECT * FROM Farmaceuta f WHERE TRIM(f.id) = ?";
         try (PreparedStatement stm = db.prepareStatement(sql)) {
-            stm.setString(1, id);
+            stm.setString(1, id != null ? id.trim() : "");
             ResultSet rs = db.executeQuery(stm);
             if (rs.next()) {
                 return from(rs, "f");
             } else {
-                throw new Exception("Farmaceuta no existe");
+                System.err.println("[FarmaceutaDao] No existe farmaceuta con ID: '" + id + "'");
+                throw new Exception("Farmaceuta no existe: " + id);
             }
         } catch (SQLException ex) {
             throw new Exception("Error al leer farmaceuta: " + ex.getMessage(), ex);
@@ -116,13 +117,15 @@ public class FarmaceutaDao {
     private Farmaceuta from(ResultSet rs, String alias) throws Exception {
         try {
             Farmaceuta f = new Farmaceuta();
-            f.setId(rs.getString(alias + ".id"));
-            f.setNombre(rs.getString(alias + ".nombre"));
-            f.setClave(rs.getString(alias + ".clave"));
-            f.setRol(rs.getString(alias + ".rol"));
+            // Quita el alias, ya que las columnas vienen sin prefijo
+            f.setId(rs.getString("id"));
+            f.setNombre(rs.getString("nombre"));
+            f.setClave(rs.getString("clave"));
+            f.setRol(rs.getString("rol"));
             return f;
         } catch (SQLException ex) {
             throw new Exception("Error al mapear farmaceuta desde ResultSet: " + ex.getMessage(), ex);
         }
     }
+
 }

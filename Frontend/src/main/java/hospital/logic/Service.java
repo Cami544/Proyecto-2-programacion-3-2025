@@ -92,7 +92,7 @@ public class Service{
         }
     }
 
-    public List<Paciente> getPacientes(){
+    public synchronized List<Paciente> getPacientes(){
         try {
             synchronized (ioLock) {
                 os.writeInt(Protocol.PACIENTE_GETALL);
@@ -164,7 +164,7 @@ public class Service{
     }
 
 
-    public List<Medico> getMedicos(){
+    public synchronized List<Medico> getMedicos(){
         try {
             synchronized (ioLock) {
                 os.writeInt(Protocol.MEDICO_GETALL);
@@ -238,7 +238,7 @@ public class Service{
         }
     }
 
-    public List<Farmaceuta> getFarmaceutas(){
+    public synchronized List<Farmaceuta> getFarmaceutas(){
         try {
             synchronized (ioLock) {
                 os.writeInt(Protocol.FARMACEUTA_GETALL);
@@ -308,7 +308,7 @@ public class Service{
         }
     }
 
-    public List<Medicamento> getMedicamentos(){
+    public synchronized List<Medicamento> getMedicamentos(){
         try {
             synchronized (ioLock) {
                 os.writeInt(Protocol.MEDICAMENTO_GETALL);
@@ -347,20 +347,28 @@ public class Service{
         else throw new Exception("RECETA NO EXISTE");
     }
 
-    public void updateReceta(Receta r) throws Exception {
+    public void updateReceta(Receta receta) throws Exception {
         synchronized (ioLock) {
-            System.out.println("[Service] Enviando RECETA_UPDATE...");
+            try {
+                System.out.println("[Service] Enviando RECETA_UPDATE...");
+                os.writeInt(Protocol.RECETA_UPDATE);
+                os.flush();
+                os.writeObject(receta);
+                os.flush();
+                System.out.println("[Service][DEBUG] Enviando receta ID=" + receta.getId() +
+                        " con farmaceutaId=" + receta.getFarmaceutaId());
+                // Leer respuesta del backend para mantener el stream alineado
+                int response = is.readInt();
+                if (response != Protocol.ERROR_NO_ERROR) {
+                    throw new Exception("Error al actualizar receta (backend respondió " + response + ")");
+                }
 
-            os.writeInt(Protocol.RECETA_UPDATE);
-            os.writeObject(r);
-            os.flush();
-            System.out.println("[Service] Receta enviada id=" + r.getId() + ", estado=" + r.getEstadoReceta());
-
-            if (is.readInt() != Protocol.ERROR_NO_ERROR)
-                throw new Exception("Error actualizando detalle receta");
+            } catch (Exception e) {
+                System.out.println("[Service][ERROR] updateReceta: " + e.getMessage());
+                throw e;
+            }
         }
     }
-
 
     public void deleteReceta(String id) throws Exception {
         os.writeInt(Protocol.RECETA_DELETE);
@@ -384,7 +392,7 @@ public class Service{
         }
     }
 
-    public List<Receta> getRecetas()  throws Exception{
+    public synchronized List<Receta> getRecetas()  throws Exception{
         try {
             synchronized (ioLock) {
                 os.writeInt(Protocol.RECETA_GETALL);
@@ -513,7 +521,7 @@ public class Service{
         else throw new Exception("DETALLE RECETA NO EXISTE");
     }
 
-    public List<DetalleReceta> getDetallesPorReceta(int recetaId) {
+    public synchronized List<DetalleReceta> getDetallesPorReceta(int recetaId) {
         try {
             os.writeInt(Protocol.DETALLE_RECETA_GETXRECETA);
             os.writeInt(recetaId);
@@ -527,7 +535,7 @@ public class Service{
         }
     }
 
-    public List<DetalleReceta> getAllDetallesReceta(){
+    public synchronized List<DetalleReceta> getAllDetallesReceta(){
 
         return List.of();
     }
@@ -573,5 +581,17 @@ public class Service{
         } catch (Exception e) {
             System.exit(-1);
         }
+    }
+    //------Para que no se pegue despacho
+    private static boolean refrescoEnProgreso = false;
+
+    public synchronized boolean tryStartRefresh() {
+        if (refrescoEnProgreso) return false;
+        refrescoEnProgreso = true;
+        return true;
+    }
+
+    public synchronized void endRefresh() {
+        refrescoEnProgreso = false;
     }
 }

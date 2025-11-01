@@ -46,31 +46,38 @@ public class Worker {
     public String getUserId(){ return userId; }
 
     public void start(){
-        try {
-            System.out.println("Worker"  + sid + " atendiendo peticiones...");
-            Thread t = new Thread(new Runnable(){
-                public void run(){
-                    listen();
-                }
-            });
-            continuar = true;
-            t.start();
-        } catch (Exception ex) { }
+        if (thread != null && thread.isAlive()) return; // evita doble inicio
+        continuar = true;
+        thread = new Thread(this::listen);
+        thread.setName("Worker-" + sid);
+        thread.start();
+        System.out.println("[Worker][" + sid + "] iniciado correctamente.");
     }
 
     public  synchronized void stop() {
+        if (!continuar) return; // evita cerrar dos veces
         continuar = false;
         try {
             if (is != null) is.close();
+        } catch (IOException ignored) {}
+        try {
             if (os != null) os.close();
+        } catch (IOException ignored) {}
+        try {
             if (s != null && !s.isClosed()) s.close();
+        } catch (IOException ignored) {}
 
+        try {
             if (ais != null) ais.close();
+        } catch (IOException ignored) {}
+        try {
             if (aos != null) aos.close();
+        } catch (IOException ignored) {}
+        try {
             if (as != null && !as.isClosed()) as.close();
-        } catch (IOException e) {
-            System.out.println("Error cerrando conexiones Worker[" + sid + "]: " + e.getMessage());
-        }
+        } catch (IOException ignored) {}
+
+        System.out.println("[Worker][" + sid + "] conexiones cerradas correctamente.");
     }
 
     public boolean isAsyncReady() { return aos != null;}
@@ -81,9 +88,15 @@ public class Worker {
                 aos.writeInt(Protocol.DELIVER_MESSAGE);
                 aos.writeObject(message);
                 aos.flush();
+                System.out.println("[Worker][" + sid + "] Mensaje entregado: " + message);
             } catch (Exception e) {
                 System.err.println("[Worker][ERROR] En deliverMessage: " + e);
+               // stop();
+                //srv.remove(this);
             }
+        }
+        else {
+            System.err.println("[Worker][" + sid + "] Canal asíncrono no disponible para enviar mensaje.");
         }
     }
 
@@ -106,7 +119,7 @@ public class Worker {
                     break;
                     // La operación se considera manejada como error y el bucle 'while' CONTINÚA.
                 }
-                else {
+
                     switch (method) {
 
                         //-------------- CASE PACIENTE ---------------------
@@ -460,15 +473,31 @@ public class Worker {
                             break;
                         case Protocol.RECETA_UPDATE:
                             try {
-                                service.updateReceta((Receta) is.readObject());
+                                System.out.println("[Worker][" + sid + "] Iniciando RECETA_UPDATE...");
+                                Receta receta = (Receta) is.readObject();
+
+                                if (receta == null) {
+                                    throw new Exception("Receta recibida es null");
+                                }
+
+                                System.out.println("[Worker][" + sid + "] Actualizando receta ID=" + receta.getId() +
+                                        ", farmaceutaId=" + receta.getFarmaceutaId() +
+                                        ", estado=" + receta.getEstadoReceta());
+
+                                service.updateReceta(receta);
+
                                 os.writeInt(Protocol.ERROR_NO_ERROR);
-                            } catch (Exception ex) {
-                                os.writeInt(Protocol.ERROR_ERROR);
-                                ex.printStackTrace();
-                            } finally {
                                 os.flush();
+                                System.out.println("[Worker][" + sid + "] RECETA_UPDATE completado correctamente.");
+
+                            } catch (Exception e) {
+                                os.writeInt(Protocol.ERROR_ERROR);
+                                os.flush();
+                                System.err.println("[Worker][" + sid + "][ERROR] En RECETA_UPDATE: " + e.getMessage());
+                                e.printStackTrace();
                             }
                             break;
+
                         case Protocol.RECETA_DELETE:
                             try {
                                 int id = is.readInt();
@@ -686,7 +715,6 @@ public class Worker {
                             os.flush();
                             break;
                     }
-                }
             } catch (IOException e) {
                 System.out.println("[Worker] Cliente desconectado (" + sid + ")");
                 if (userId != null) {
@@ -694,29 +722,21 @@ public class Worker {
                 }
                 stop();
                 srv.remove(this);
-                return;
+                break;
             }
             catch (Exception e) {
-                // CAPTURA CUALQUIER EXCEPCIÓN DE LÓGICA NO MANEJADA
-                System.err.println("[Worker] EXCEPCIÓN DE LÓGICA FUERA DE SWITCH. CORRUPCIÓN DE STREAM. ERROR: " + e.getMessage());
+                System.err.println("[Worker][" + sid + "] ERROR inesperado: " + e);
                 e.printStackTrace();
-
-                // 1. Notifica el error al cliente si es posible
-                try { os.writeInt(Protocol.ERROR_ERROR); os.flush(); } catch (IOException ignore) {}
-
-                // 2. FORZAR LA MUERTE CONTROLADA DEL WORKER, YA QUE EL STREAM ESTÁ CORRUPTO
-                System.err.println("[Worker] El stream síncrono está corrupto. Terminando Worker...");
-
-                // 3. ¡Llama a la lógica de desconexión!
-                if (userId != null) {
-                    srv.deliver_message(this, "LOGOUT:" + userId);
-                }
-                stop(); // Cierra el socket síncrono y asíncrono
+                try { os.writeInt(Protocol.ERROR_ERROR); os.flush(); } catch (Exception ignored) {}
+                stop();
                 srv.remove(this);
-                return; // Termina el hilo
-
+                break;
                 // Ya que el socket SÍNCRONO se cierra, el cliente se verá forzado a reconectarse para cualquier operación síncrona.
+
             }
         }
+        srv.remove(this);
+        System.out.println("[Worker][" + sid + "] Hilo finalizado.");
+
     }
 }

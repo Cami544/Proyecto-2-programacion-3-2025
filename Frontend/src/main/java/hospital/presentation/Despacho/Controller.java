@@ -63,25 +63,23 @@ public class Controller {
     }
 
 
-    public void guardarCambiosReceta(String farmaceutaNombre, String estado) throws Exception {
+    public void guardarCambiosReceta(String farmaceutaId, String estado) throws Exception {
         Receta receta = model.getRecetaSeleccionada();
         if (receta == null) {
             throw new IllegalStateException("No hay receta seleccionada.");
         }
-        if (farmaceutaNombre != null && !farmaceutaNombre.isEmpty()) {
-            receta.setFarmaceutaId(farmaceutaNombre);
+        if (farmaceutaId != null && !farmaceutaId.isEmpty()) {
+            receta.setFarmaceutaId(farmaceutaId.trim());
         }
         if (estado != null && !estado.isEmpty()) {
             receta.setEstadoReceta(estado);
         }
-        Service.instance().updateReceta(receta); //guarda cambio en sql
 
+        System.out.println("[Controller][DEBUG] Guardando receta con farmaceutaId=" + farmaceutaId);
+        Service.instance().updateReceta(receta);
         model.actualizarRecetaEnListas(receta);
-
-        System.out.println("Receta actualizada en base de datos: ID " + receta.getId() +
-                ", farmaceutaId=" + receta.getFarmaceutaId() +
-                ", estado=" + receta.getEstadoReceta());
     }
+
 
     public void seleccionarRecetaPaciente(int index) throws Exception {
         List<Receta> recetasMostradas = model.getRecetasFiltradasPaciente();
@@ -95,5 +93,4 @@ public class Controller {
             throw new Exception("Índice de receta inválido");
         }
     }
-
 }

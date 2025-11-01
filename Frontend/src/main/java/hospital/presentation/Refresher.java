@@ -3,66 +3,58 @@ package hospital.presentation;
 import javax.swing.*;
 
 public class Refresher {
-    ThreadListener listener;
+    private final ThreadListener listener;
+    private Thread hilo;
+    private boolean condition = false;
+    private volatile boolean running = false;
+    private long c = 0;
+    private static final int REFRESH_INTERVAL_MS = 30000; // 20 segundos
+
 
     public Refresher(ThreadListener listener) {
         this.listener = listener;
     }
 
-    private Thread hilo;
-    private boolean condition = false;
-    private volatile boolean running = false; // evita superposición de refresh
-
     public void start() {
         if (condition) {
-            System.out.println("Refresher ya está corriendo");
+            System.out.println("[Refresher] Ya está corriendo");
             return;
         }
 
-        Runnable task = new Runnable() {
-            public void run() {
-                while (condition) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                    if (!running) {
-                        refresh();
-                    }
+        condition = true;
+        hilo = new Thread(() -> {
+            System.out.println("[Refresher] Iniciado - actualizando cada 3 segundos");
+            while (condition) {
+                try {
+                    Thread.sleep(REFRESH_INTERVAL_MS);
+                    if (!running) refresh();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             }
-        };
-        hilo = new Thread(task);
+        }, "Refresher-Main");
         hilo.setDaemon(true);
-        condition = true;
         hilo.start();
-        System.out.println("Refresher iniciado - actualizando cada 3 segundos");
     }
 
     public void stop() {
         condition = false;
-        if (hilo != null) {
-            hilo.interrupt();
-        }
-        System.out.println("Refresher detenido");
+        if (hilo != null) hilo.interrupt();
+        System.out.println("[Refresher] Detenido");
     }
 
-    long c = 0;
     private void refresh() {
-        System.out.println("Refresh #" + c++);
         running = true;
-        SwingUtilities.invokeLater(
-                new Runnable() {
-                    public void run() {
-                        try {
-                            listener.refresh();
-                        } finally {
-                            running = false;
-                        }
-                    }
-                }
-        );
+        long num = c++;
+        new Thread(() -> {
+            try {
+                listener.refresh();  // Ejecuta el trabajo en segundo plano
+            } catch (Exception e) {
+                System.err.println("[Refresher] Error en refresh #" + num + ": " + e.getMessage());
+            } finally {
+                running = false;
+            }
+        }, "Refresher-Worker-" + num).start();
     }
 }

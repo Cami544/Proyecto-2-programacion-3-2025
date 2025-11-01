@@ -143,58 +143,51 @@ public class Application {
      * Inicializa el Refresher que actualiza TODAS las vistas cada 2 segundos
      */
     private static void iniciarRefresher() {
-        // Crear un listener compuesto que refresca SOLO la pestaña visible (EXCEPTO usuarioView)
         ThreadListener compositeListener = new ThreadListener() {
             @Override
             public void refresh() {
                 if (tabbedPane == null) return;
-                java.awt.Component selected = tabbedPane.getSelectedComponent();
+
+                Component selected = tabbedPane.getSelectedComponent();
                 if (selected == null) return;
 
-                // UsuarioView no se refresca; se actualiza por notificaciones
-                if (medicoView != null && selected == medicoView.getPanel()) {
-                    medicoView.refresh();
-                    return;
-                }
-                if (pacienteView != null && selected == pacienteView.getPanel()) {
-                    pacienteView.refresh();
-                    return;
-                }
-                if (farmaceutaView != null && selected == farmaceutaView.getPanel()) {
-                    farmaceutaView.refresh();
-                    return;
-                }
-                if (medicamentoView != null && selected == medicamentoView.getPanel()) {
-                    medicamentoView.refresh();
-                    return;
-                }
-                if (dashboardView != null && selected == dashboardView.getPanel()) {
-                    dashboardView.refresh();
-                    return;
-                }
-                if (historicoView != null && selected == historicoView.getPanel()) {
-                    historicoView.refresh();
-                    return;
-                }
-                if (preescribirView != null && selected == preescribirView.getPanel()) {
-                    preescribirView.refresh();
-                    return;
-                }
-                if (despachoView != null && selected == despachoView.getPanel()) {
-                    despachoView.refresh();
+                // Solo refrescar la pestaña visible (ejecución segura en background)
+                try {
+                    if (selected == medicoView.getPanel()) medicoView.refresh();
+                    else if (selected == pacienteView.getPanel()) pacienteView.refresh();
+                    else if (selected == farmaceutaView.getPanel()) farmaceutaView.refresh();
+                    else if (selected == medicamentoView.getPanel()) medicamentoView.refresh();
+                    else if (selected == dashboardView.getPanel()) dashboardView.refresh();
+                    else if (selected == historicoView.getPanel()) historicoView.refresh();
+                    else if (selected == preescribirView.getPanel()) preescribirView.refresh();
+                    else if (selected == despachoView.getPanel()) despachoView.refresh();
+                } catch (Exception ex) {
+                    System.err.println("[Refresher] Error refrescando pestaña visible: " + ex.getMessage());
                 }
             }
 
             @Override
             public void deliver_message(String message) {
-                // No necesario
+                // No necesario aquí
             }
         };
 
+        // 🔹 Creamos y lanzamos el refresher global (solo refresca la pestaña activa)
         refresher = new Refresher(compositeListener);
         refresher.start();
-        System.out.println(" Refresher iniciado - Todas las tablas se actualizarán cada 2 segundos");
+
+        System.out.println(" Refresher iniciado - refrescando solo pestaña visible cada 3 segundos");
+
+        // 🔹 Opcional: detener / reanudar cuando cambies de pestaña
+        tabbedPane.addChangeListener(e -> {
+            Component selected = tabbedPane.getSelectedComponent();
+            if (selected == null) return;
+
+            String title = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+            System.out.println("[UI] Pestaña actual: " + title);
+        });
     }
+
 
     private static void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();

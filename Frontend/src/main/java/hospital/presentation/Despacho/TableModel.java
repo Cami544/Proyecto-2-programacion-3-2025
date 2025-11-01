@@ -65,9 +65,12 @@ public class TableModel extends AbstractTableModel<Receta> implements javax.swin
         }
     }
     private String obtenerNombreFarmaceuta(String farmaceutaId) {
+        if (farmaceutaId == null || farmaceutaId.trim().isEmpty()) {
+            return "—"; // sin asignar
+        }
         try {
-            Farmaceuta farmaceuta= Service.instance().readFarmaceuta(farmaceutaId);
-            return farmaceuta.getNombre();
+            Farmaceuta f = Service.instance().readFarmaceuta(farmaceutaId);
+            return f.getNombre();
         } catch (Exception e) {
             return farmaceutaId;
         }
