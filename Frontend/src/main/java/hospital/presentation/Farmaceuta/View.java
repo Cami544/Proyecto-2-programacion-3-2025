@@ -155,7 +155,7 @@ public class View implements PropertyChangeListener, ThreadListener {
             case Model.LIST:
                 updateTable();
                 break;
-            case Model.FILTERED:
+            case Model.FILTER:
                 updateFilteredTable();
                 break;
             case Model.CURRENT:

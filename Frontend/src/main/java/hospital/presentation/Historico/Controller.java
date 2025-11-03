@@ -35,8 +35,18 @@ public class Controller {
     public void refrescarRecetas() throws Exception {
         List<Receta> todasLasRecetas = Service.instance().getRecetas();
         model.setRecetas(todasLasRecetas);
-        model.setRecetasFiltradas(todasLasRecetas);
-        model.setCriterioFiltro("");
+
+        if (model.getCriterioFiltro() != null && !model.getCriterioFiltro().trim().isEmpty()) {
+            try {
+                int criterio = Integer.parseInt(model.getCriterioFiltro());
+                buscarRecetas(criterio);
+            } catch (NumberFormatException e) {
+                model.setRecetasFiltradas(todasLasRecetas);
+                model.setCriterioFiltro("");
+            }
+        } else {
+            model.setRecetasFiltradas(todasLasRecetas);
+        }
 
         System.out.println("Historico actualizado. Total de recetas: " + todasLasRecetas.size());
     }

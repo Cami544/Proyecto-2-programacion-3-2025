@@ -1,5 +1,6 @@
 package hospital.presentation.Medicamento;
 
+import hospital.Application;
 import hospital.logic.Medicamento;
 import hospital.presentation.AbstractModel;
 
@@ -8,22 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Model extends AbstractModel {
-    private Medicamento current;
+    private List<Medicamento> filtro;
     private List<Medicamento> list;
-    private List<Medicamento> filtered;
+    private Medicamento current;
+    private int mode;
+    private String criterioFiltro; // 🔹 NUEVO
 
-    public static final String CURRENT = "current";
     public static final String LIST = "list";
+    public static final String CURRENT = "current";
     public static final String FILTERED = "filtered";
 
     public Model() {
-        current = new Medicamento();
-        list = new ArrayList<>();
-        filtered = new ArrayList<>();
+        init(new ArrayList<>());
+        this.criterioFiltro = ""; // 🔹 NUEVO
 
         try {
-            this.list = hospital.logic.Service.instance().getMedicamentos();
-            this.filtered = new ArrayList<>(this.list);
+            List<Medicamento> medicamentos = hospital.logic.Service.instance().getMedicamentos();
+            this.list = medicamentos;
+            this.filtro = new ArrayList<>(medicamentos);
         } catch (Exception e) {
             System.err.println("Error cargando medicamentos iniciales: " + e.getMessage());
         }
@@ -32,22 +35,42 @@ public class Model extends AbstractModel {
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         super.addPropertyChangeListener(listener);
-        firePropertyChange(CURRENT);
         firePropertyChange(LIST);
+        firePropertyChange(CURRENT);
         firePropertyChange(FILTERED);
+    }
+
+    public void init(List<Medicamento> list) {
+        this.list = list;
+        this.current = new Medicamento();
+        this.filtro = new ArrayList<>(list);
+        this.mode = Application.MODE_CREATE;
+        this.criterioFiltro = ""; // 🔹 NUEVO
+    }
+
+    public List<Medicamento> getList() {
+        return list;
     }
 
     public Medicamento getCurrent() {
         return current;
     }
 
-    public void setCurrent(Medicamento current) {
-        this.current = current;
-        firePropertyChange(CURRENT);
+    public List<Medicamento> getFiltered() {
+        return filtro;
     }
 
-    public List<Medicamento> getList() {
-        return list;
+    public int getModel() {
+        return mode;
+    }
+
+    // 🔹 NUEVO
+    public String getCriterioFiltro() {
+        return criterioFiltro;
+    }
+
+    public void setCriterioFiltro(String criterioFiltro) {
+        this.criterioFiltro = criterioFiltro != null ? criterioFiltro : "";
     }
 
     public void setList(List<Medicamento> list) {
@@ -55,12 +78,17 @@ public class Model extends AbstractModel {
         firePropertyChange(LIST);
     }
 
-    public List<Medicamento> getFiltered() {
-        return filtered;
+    public void setFiltered(List<Medicamento> filter) {
+        this.filtro = filter;
+        firePropertyChange(FILTERED);
     }
 
-    public void setFiltered(List<Medicamento> filtered) {
-        this.filtered = filtered;
-        firePropertyChange(FILTERED);
+    public void setCurrent(Medicamento current) {
+        this.current = current;
+        firePropertyChange(CURRENT);
+    }
+
+    public void setModel(int mode) {
+        this.mode = mode;
     }
 }

@@ -23,7 +23,12 @@ public class Controller {
 
     public void refrescarDatos() throws Exception {
         model.setList(Service.instance().getMedicamentos());
-        model.setFiltered(Service.instance().getMedicamentos());
+
+        if (model.getCriterioFiltro() != null && !model.getCriterioFiltro().trim().isEmpty()) {
+            model.setFiltered(Service.instance().searchMedicamentos(model.getCriterioFiltro()));
+        } else {
+            model.setFiltered(Service.instance().getMedicamentos());
+        }
     }
 
     public void save(Medicamento medicamento) throws Exception {
@@ -68,6 +73,8 @@ public class Controller {
 
     public void filter(String criterio) {
         try {
+            model.setCriterioFiltro(criterio);
+
             if (criterio == null || criterio.trim().isEmpty()) {
                 model.setFiltered(Service.instance().getMedicamentos());
             } else {

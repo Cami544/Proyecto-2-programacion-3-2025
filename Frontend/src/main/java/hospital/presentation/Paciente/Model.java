@@ -13,6 +13,7 @@ public class Model extends AbstractModel {
     private List<Paciente> list;
     private Paciente current;
     private int mode;
+    private String criterioFiltro; // 🔹 NUEVO
 
     public static final String LIST = "list";
     public static final String CURRENT = "current";
@@ -20,6 +21,7 @@ public class Model extends AbstractModel {
 
     public Model() {
         init(new ArrayList<>());
+        this.criterioFiltro = "";
 
         try {
             List<Paciente> pacientes = hospital.logic.Service.instance().getPacientes();
@@ -43,6 +45,7 @@ public class Model extends AbstractModel {
         this.current = new Paciente();
         this.filtro = new ArrayList<>(list);
         this.mode = Application.MODE_CREATE;
+        this.criterioFiltro = ""; // 🔹 NUEVO
     }
 
     public List<Paciente> getList() {
@@ -59,6 +62,15 @@ public class Model extends AbstractModel {
 
     public int getModel() {
         return mode;
+    }
+
+    // 🔹 NUEVO
+    public String getCriterioFiltro() {
+        return criterioFiltro;
+    }
+
+    public void setCriterioFiltro(String criterioFiltro) {
+        this.criterioFiltro = criterioFiltro != null ? criterioFiltro : "";
     }
 
     public void setList(List<Paciente> list) {

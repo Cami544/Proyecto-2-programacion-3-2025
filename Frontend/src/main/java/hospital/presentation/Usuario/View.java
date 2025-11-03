@@ -124,7 +124,6 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void refresh() {
-        // Refrescar lista de usuarios conectados desde el servidor
         if (controller != null) {
             controller.refrescarDatos();
         }
@@ -145,6 +144,8 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        int selectedRow = usuariosTable.getSelectedRow();
+
         switch (evt.getPropertyName()) {
             case Model.USUARIOS_ACTIVOS:
                 actualizarTabla();
@@ -152,6 +153,11 @@ public class View implements PropertyChangeListener, ThreadListener {
             case Model.USUARIO_SELECCIONADO:
                 break;
         }
+
+        if (selectedRow >= 0 && selectedRow < usuariosTable.getRowCount()) {
+            usuariosTable.setRowSelectionInterval(selectedRow, selectedRow);
+        }
+
         panel.revalidate();
         panel.repaint();
     }
