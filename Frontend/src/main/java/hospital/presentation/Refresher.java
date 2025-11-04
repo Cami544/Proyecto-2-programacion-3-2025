@@ -8,7 +8,7 @@ public class Refresher {
     private boolean condition = false;
     private volatile boolean running = false;
     private long c = 0;
-    private static final int REFRESH_INTERVAL_MS = 3000; // 20 segundos
+    private static final int REFRESH_INTERVAL_MS = 3000;
 
 
     public Refresher(ThreadListener listener) {
@@ -44,15 +44,23 @@ public class Refresher {
         System.out.println("[Refresher] Detenido");
     }
 
-    private void refresh() {
+    void refresh() {
         running = true;
         long num = c++;
+
         new Thread(() -> {
             try {
-                listener.refresh();  // Ejecuta el trabajo en segundo plano
-            } catch (Exception e) {
-                System.err.println("[Refresher] Error en refresh #" + num + ": " + e.getMessage());
-            } finally {
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    try {
+                        listener.refresh();
+                    } catch (Exception e) {
+                        System.err.println("[Refresher] Error en refresh #" + num + ": " + e.getMessage());
+                    } finally {
+                        running = false;
+                    }
+                });
+            } catch (Exception ex) {
+                System.err.println("[Refresher] Error inesperado: " + ex.getMessage());
                 running = false;
             }
         }, "Refresher-Worker-" + num).start();

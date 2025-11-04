@@ -53,7 +53,7 @@ public class Application {
     public static void doRun() {
         tabbedPane = new JTabbedPane();
 
-        // Crear panel principal con BorderLayout
+        // Crea panel principal con BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
         mainPanel.add(usuarioView.getPanel(), BorderLayout.EAST);
@@ -101,27 +101,21 @@ public class Application {
                 break;
         }
 
-        // ============================================
-        // PASO 1: INICIAR SocketListener (para mensajes entre usuarios)
-        // ============================================
         try {
             String sid = hospital.logic.Service.instance().getSid();
             socketListener = new hospital.presentation.SocketListener(usuarioView, sid);
             socketListener.start();
             System.out.println(" SocketListener iniciado con SID: " + sid);
-            // La lista de usuarios se actualiza automáticamente mediante Refresher
         } catch (Exception ex) {
             System.err.println(" Error iniciando SocketListener: " + ex.getMessage());
         }
 
-        // Añadir al usuario actual para que se vea a sí mismo en la lista (los demás llegan por notificación)
         try {
             if (Sesion.getUsuario() != null && usuarioController != null) {
                 usuarioController.agregarUsuarioActual();
             }
         } catch (Exception ignore) {}
 
-        // Sincronizar lista inicial de conectados ya presentes en el servidor
         try {
             java.util.List<String> conectados = hospital.logic.Service.instance().getUsuariosConectados();
             if (usuarioController != null && conectados != null) {
@@ -131,17 +125,11 @@ public class Application {
             System.err.println("No se pudo sincronizar usuarios iniciales: " + ex.getMessage());
         }
 
-        // ============================================
-        // PASO 2: INICIAR REFRESHER para actualizar TODAS las tablas (EXCEPTO usuarios)
-        // ============================================
         iniciarRefresher();
 
         window.setVisible(true);
     }
 
-    /**
-     * Inicializa el Refresher que actualiza TODAS las vistas cada 2 segundos
-     */
     private static void iniciarRefresher() {
         ThreadListener compositeListener = new ThreadListener() {
             @Override
@@ -151,7 +139,6 @@ public class Application {
                 Component selected = tabbedPane.getSelectedComponent();
                 if (selected == null) return;
 
-                // Refrescar la pestaña visible
                 try {
                     if (selected == medicoView.getPanel()) medicoView.refresh();
                     else if (selected == pacienteView.getPanel()) pacienteView.refresh();
@@ -174,15 +161,13 @@ public class Application {
 
             @Override
             public void deliver_message(String message) {
-                // No necesario aquí
             }
         };
 
-        // Creamos y lanzamos el refresher global
         refresher = new Refresher(compositeListener);
         refresher.start();
 
-        System.out.println("✅ Refresher iniciado - refrescando TODAS las pestañas cada 3 segundos");
+        System.out.println("Refresher iniciado");
 
         tabbedPane.addChangeListener(e -> {
             Component selected = tabbedPane.getSelectedComponent();
@@ -223,7 +208,6 @@ public class Application {
                     if (socketListener != null) {
                         socketListener.stop();
                     }
-                    // La lista de usuarios se actualiza automáticamente mediante Refresher
                 } catch (Exception ex) {
                     System.err.println("Error en logout: " + ex.getMessage());
                 }
@@ -301,7 +285,6 @@ public class Application {
         despachoView = new hospital.presentation.Despacho.View();
         despachoController = new hospital.presentation.Despacho.Controller(despachoView, despachoModel);
 
-        // Inicializar módulo de Usuarios
         hospital.presentation.Usuario.Model usuarioModel = new hospital.presentation.Usuario.Model();
         usuarioView = new hospital.presentation.Usuario.View();
         usuarioController = new hospital.presentation.Usuario.Controller(usuarioView, usuarioModel);

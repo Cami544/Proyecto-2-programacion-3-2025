@@ -64,7 +64,6 @@ public class Model extends AbstractModel {
         return mode;
     }
 
-    // 🔹 NUEVO
     public String getCriterioFiltro() {
         return criterioFiltro;
     }

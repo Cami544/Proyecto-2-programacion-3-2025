@@ -118,7 +118,7 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void deliver_message(String mensaje) {
-        // Este método es llamado por el SocketListener cuando llega una notificación
+
         controller.procesarNotificacion(mensaje);
     }
 

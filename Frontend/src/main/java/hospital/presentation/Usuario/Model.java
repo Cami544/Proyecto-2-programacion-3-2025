@@ -13,8 +13,6 @@ public class Model extends AbstractModel {
     private List<Usuario> usuariosActivos;
     private Usuario usuarioSeleccionado;
 
-    // Nuevo: Almacenar mensajes pendientes por usuario
-    // Clave: userId del remitente, Valor: Lista de mensajes (formato "contenido")
     private Map<String, List<String>> mensajesPendientes;
 
     public static final String USUARIOS_ACTIVOS = "usuariosActivos";

@@ -13,7 +13,7 @@ public class Model extends AbstractModel {
     private List<Farmaceuta> list;
     private Farmaceuta current;
     private int mode;
-    private String criterioFiltro; // 🔹 NUEVO
+    private String criterioFiltro;
 
     public static final String LIST = "list";
     public static final String CURRENT = "current";
@@ -21,7 +21,7 @@ public class Model extends AbstractModel {
 
     public Model() {
         init(new ArrayList<>());
-        this.criterioFiltro = ""; // 🔹 NUEVO
+        this.criterioFiltro = "";
 
         try {
             List<Farmaceuta> farmaceutas = hospital.logic.Service.instance().getFarmaceutas();

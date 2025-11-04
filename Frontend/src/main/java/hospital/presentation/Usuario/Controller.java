@@ -180,10 +180,10 @@ public class Controller {
             }
 
             model.setUsuariosActivos(usuariosConectados);
-            System.out.println("✅ Tabla de usuarios refrescada. Total conectados: " + usuariosConectados.size());
+            //System.out.println("✅ Tabla de usuarios refrescada. Total conectados: " + usuariosConectados.size());
 
         } catch (Exception ex) {
-            System.err.println("❌ Error refrescando usuarios conectados: " + ex.getMessage());
+            System.err.println("Error refrescando usuarios conectados: " + ex.getMessage());
             ex.printStackTrace();
         }
     }

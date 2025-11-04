@@ -64,7 +64,6 @@ public class Model extends AbstractModel {
         return mode;
     }
 
-    // 🔹 NUEVO: Getter y Setter para el criterio de filtro
     public String getCriterioFiltro() {
         return criterioFiltro;
     }
