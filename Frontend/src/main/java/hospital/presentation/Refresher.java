@@ -44,7 +44,7 @@ public class Refresher {
         System.out.println("[Refresher] Detenido");
     }
 
-    void refresh() {
+  public void refresh() {
         running = true;
         long num = c++;
 
