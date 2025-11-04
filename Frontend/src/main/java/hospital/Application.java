@@ -149,7 +149,6 @@ public class Application {
                     else if (selected == preescribirView.getPanel()) preescribirView.refresh();
                     else if (selected == despachoView.getPanel()) despachoView.refresh();
 
-                    // 🔹 AÑADIR ESTA LÍNEA PARA REFRESCAR USUARIOS
                     if (usuarioView != null) {
                         usuarioView.refresh();
                     }

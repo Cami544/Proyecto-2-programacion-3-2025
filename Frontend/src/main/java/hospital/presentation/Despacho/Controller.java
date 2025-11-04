@@ -31,15 +31,25 @@ public class Controller {
         }
 
     public void refrecarDatos() throws Exception {
-        if (model.getRecetaSeleccionada() != null) {
-            return;
-        }
-
         List<Receta> recetas = Service.instance().getRecetas();
         List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
 
         model.setListFarmaceutas(farmaceutas);
         model.setListReceta(recetas);
+
+        if (model.getRecetaSeleccionada() != null) {
+            int idSeleccionado = model.getRecetaSeleccionada().getId();
+            Receta recetaActualizada = recetas.stream()
+                    .filter(r -> r.getId() == idSeleccionado)
+                    .findFirst()
+                    .orElse(null);
+
+            if (recetaActualizada != null) {
+                model.setRecetaPacienteSeleccionado(recetaActualizada);
+            } else {
+                model.setRecetaPacienteSeleccionado(null);
+            }
+        }
 
         if (model.getRecetaFiltro() != null && !model.getRecetaFiltro().trim().isEmpty()) {
             buscarRecetasPorPaciente(model.getRecetaFiltro());

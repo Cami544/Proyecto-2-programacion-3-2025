@@ -401,53 +401,37 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     private void actualizarGraficoLineas() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        Map<String, Map<String, Integer>> agrupado = new HashMap<>();
+        Map<String, Map<String, Integer>> datos = model.getDatosEstadisticas().stream()
+                .collect(Collectors.groupingBy(
+                        arr -> (String) arr[0], // periodo
+                        LinkedHashMap::new,
+                        Collectors.toMap(
+                                arr -> (String) arr[1], // nombre medicamento
+                                arr -> (Integer) arr[2], // cantidad
+                                Integer::sum
+                        )
+                ));
 
-        List<Object[]> datosEstadisticas = model.getDatosEstadisticas();
-        if (datosEstadisticas == null || datosEstadisticas.isEmpty()) {
+        if (datos.isEmpty()) {
             crearGraficoVacio();
             return;
         }
 
-        for (Object[] fila : datosEstadisticas) {
-            if (fila == null || fila.length < 3) {
-                continue;
-            }
+        List<String> todosLosPeriodos = new ArrayList<>(datos.keySet());
+        Collections.sort(todosLosPeriodos);
 
-            String periodo = (String) fila[0];
-            String medicamento = (String) fila[1];
-            Integer cantidad = (Integer) fila[2];
-
-            if (periodo == null || medicamento == null || cantidad == null) {
-                continue;
-            }
-
-            agrupado.putIfAbsent(periodo, new HashMap<>());
-            agrupado.get(periodo).merge(medicamento, cantidad, Integer::sum);
+        Set<String> todosMedicamentos = new HashSet<>();
+        for (Map<String, Integer> medicamentosPorPeriodo : datos.values()) {
+            todosMedicamentos.addAll(medicamentosPorPeriodo.keySet());
         }
 
-        if (agrupado.isEmpty()) {
-            crearGraficoVacio();
-            return;
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        List<String> periodosOrdenados = agrupado.keySet().stream()
-                .sorted(Comparator.comparing(p -> {
-                    try {
-                        return java.time.YearMonth.parse(p, formatter);
-                    } catch (Exception e) {
-                        return java.time.YearMonth.now();
-                    }
-                }))
-                .collect(Collectors.toList());
-
-        for (String periodo : periodosOrdenados) {
-            Map<String, Integer> medicamentosPorPeriodo = agrupado.get(periodo);
-            if (medicamentosPorPeriodo != null) {
-                for (Map.Entry<String, Integer> entryMed : medicamentosPorPeriodo.entrySet()) {
-                    dataset.addValue(entryMed.getValue(), entryMed.getKey(), periodo);
+        for (String medicamento : todosMedicamentos) {
+            for (String periodo : todosLosPeriodos) {
+                Integer cantidad = 0;
+                if (datos.containsKey(periodo) && datos.get(periodo).containsKey(medicamento)) {
+                    cantidad = datos.get(periodo).get(medicamento);
                 }
+                dataset.addValue(cantidad, medicamento, periodo);
             }
         }
 
