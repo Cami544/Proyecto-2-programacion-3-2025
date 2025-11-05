@@ -30,14 +30,14 @@ public class Model  extends AbstractModel {
 
 
     public Model() throws Exception {
-   //  this.recetas= Service.instance().getRecetas();
-       this.recetas = new ArrayList<>();
-       this.recetasFiltradasPaciente = new ArrayList<>();
-       //  this.listFarmaceutas = Service.instance().getFarmaceutas();
-       this.listFarmaceutas = new ArrayList<>();
-       this.farmaceutaSeleecionado = null;
-       this.recetaSeleccionada = null;
-       this.criterioFiltro = "";
+        //  this.recetas= Service.instance().getRecetas();
+        this.recetas = new ArrayList<>();
+        this.recetasFiltradasPaciente = new ArrayList<>();
+        //  this.listFarmaceutas = Service.instance().getFarmaceutas();
+        this.listFarmaceutas = new ArrayList<>();
+        this.farmaceutaSeleecionado = null;
+        this.recetaSeleccionada = null;
+        this.criterioFiltro = "";
 
     }
 
@@ -124,5 +124,3 @@ public class Model  extends AbstractModel {
         firePropertyChange(RECETA_FILTRADO);
     }
 }
-
-

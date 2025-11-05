@@ -11,45 +11,35 @@ import java.util.List;
 
 public class Controller {
 
-        private View view;
-        private Model model;
+    private View view;
+    private Model model;
 
-        public Controller(View view, Model model) {
-            this.view = view;
-            this.model = model;
-            view.setController(this);
-            view.setModel(model);
-            try{
-                List< Receta> recetas = Service.instance().getRecetas();
-                List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
-                model.setListFarmaceutas( farmaceutas);
-                model.setListReceta(recetas);
-                model.setListRecetaPacienteFiltrado( recetas);
-                model.setCriterioFiltro("");
-            }
-            catch(Exception e){ System.out.println("Error al cargar los datos"+ e.getMessage()); }
+    public Controller(View view, Model model) {
+        this.view = view;
+        this.model = model;
+        view.setController(this);
+        view.setModel(model);
+        try{
+            List< Receta> recetas = Service.instance().getRecetas();
+            List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
+            model.setListFarmaceutas( farmaceutas);
+            model.setListReceta(recetas);
+            model.setListRecetaPacienteFiltrado( recetas);
+            model.setCriterioFiltro("");
         }
+        catch(Exception e){ System.out.println("Error al cargar los datos"+ e.getMessage()); }
+    }
 
     public void refrecarDatos() throws Exception {
+        if (model.getRecetaSeleccionada() != null) {
+            return;
+        }
+
         List<Receta> recetas = Service.instance().getRecetas();
         List<Farmaceuta> farmaceutas = Service.instance().getFarmaceutas();
 
         model.setListFarmaceutas(farmaceutas);
         model.setListReceta(recetas);
-
-        if (model.getRecetaSeleccionada() != null) {
-            int idSeleccionado = model.getRecetaSeleccionada().getId();
-            Receta recetaActualizada = recetas.stream()
-                    .filter(r -> r.getId() == idSeleccionado)
-                    .findFirst()
-                    .orElse(null);
-
-            if (recetaActualizada != null) {
-                model.setRecetaPacienteSeleccionado(recetaActualizada);
-            } else {
-                model.setRecetaPacienteSeleccionado(null);
-            }
-        }
 
         if (model.getRecetaFiltro() != null && !model.getRecetaFiltro().trim().isEmpty()) {
             buscarRecetasPorPaciente(model.getRecetaFiltro());
@@ -58,6 +48,10 @@ public class Controller {
         }
     }
 
+    public void limpiarSeleccion() {
+        model.setRecetaPacienteSeleccionado(null);
+    }
+//---------------------------------------------------------------------------------
     public void buscarRecetasPorPaciente(String criterio) {
         model.setCriterioFiltro(criterio);
 

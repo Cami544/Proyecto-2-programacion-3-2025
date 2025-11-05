@@ -166,7 +166,7 @@ public class View implements PropertyChangeListener, ThreadListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        int selectedRow = table.getSelectedRow(); // 🔹 Guardar fila seleccionada
+        int selectedRow = table.getSelectedRow();
         switch (evt.getPropertyName()) {
             case Model.LIST:
                 updateTable();

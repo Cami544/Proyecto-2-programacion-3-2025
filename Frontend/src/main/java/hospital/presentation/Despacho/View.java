@@ -108,6 +108,9 @@ public class View implements PropertyChangeListener, ThreadListener {
                     if ("Entregada".equalsIgnoreCase(estado)) {
                         recetaComboBox.setEnabled(false);
                     }
+
+                    controller.limpiarSeleccion();
+
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(panel,
                             "Error al guardar cambios: " + ex.getMessage(),
@@ -146,6 +149,7 @@ public class View implements PropertyChangeListener, ThreadListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 buscarIdText.setText("");
+                controller.limpiarSeleccion();
                 try {
                     controller.refrecarDatos();
                 } catch (Exception ex) {
